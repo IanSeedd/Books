@@ -1,8 +1,112 @@
 {% extends 'base.html' %}
-{% block title %}Home{% endblock %}
 
 {% block content %}
-    <section>
-        
-    </section>
+<style>
+    :root {
+        /* A mágica acontece aqui: a variável global muda conforme a categoria */
+        --accent-category: {{ cor_tema }};
+    }
+
+    /* Aplicando a cor no Breadcrumb e nos detalhes */
+    .breadcrumb-label {
+        color: var(--accent-category) !important;
+        text-shadow: 0 0 15px rgba({{ cor_tema_rgb }}, 0.3); /* Brilho sutil */
+    }
+
+    .btn-filter-trigger {
+        border-color: var(--accent-category) !important;
+        color: var(--accent-category) !important;
+    }
+
+    /* Muda a cor de destaque dos cards ao passar o mouse */
+    .book-card:hover {
+        border-color: var(--accent-category) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px var(--accent-category)1A;
+    }
+    
+    .section-divider {
+        background: linear-gradient(to right, var(--accent-category), transparent);
+        opacity: 0.5;
+    }
+</style>
+<div class="container-fluid px-md-5 mt-4">
+    
+    <div class="d-flex justify-content-between align-items-end">
+        <div class="breadcrumb-container">
+            <a href="{% url 'home' %}" class="btn-breadcrumb-back">livros</a>
+            {% if categoria_nome_bonito %}
+                <span class="breadcrumb-label">/ {{ categoria_nome_bonito }}</span>
+            {% endif %}
+            <span class="btn-breadcrumb-back" style="pointer-events: none;">:</span>
+        </div>
+
+        <button class="btn-filter-trigger" data-bs-toggle="modal" data-bs-target="#filterModal">
+            Filtrar +
+        </button>
+    </div>
+    
+    <div class="section-divider"></div>
+
+    <div class="book-grid">
+    {% for livro in livros %}
+    <div class="book-card">
+        <div class="book-media">
+            {% if livro.capa %}
+                <img src="{{ livro.capa.url }}" class="book-capa" alt="{{ livro.titulo }}">
+            {% endif %}
+            
+            {% if livro.video_demonstracao %}
+                <video class="book-video" muted loop onmouseover="this.play()" onmouseout="this.pause(); this.currentTime=0;">
+                    <source src="{{ livro.video_demonstracao.url }}" type="video/mp4">
+                </video>
+            {% endif %}
+        </div>
+
+        <div class="book-info">
+            <span class="book-category" style="font-size: 0.6rem; opacity: 0.7;">
+                {{ livro.get_categoria_display }}
+            </span>
+            <h3 class="book-title">{{ livro.titulo }}</h3>
+            
+            <div class="badge-group">
+                {% for carac in livro.caracteristicas %}
+                    <span class="book-badge">{{ carac }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="book-price">R$ {{ livro.preco }}</div>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+</div>
+
+<div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-filter-content">
+            <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">✕</button>
+            
+            <div class="modal-body p-4">
+                <form action="{% url 'home' %}" method="GET" id="filterForm">
+                    <p class="text-muted small mb-4 text-uppercase letter-spacing-2">Filtrar Categorias:</p>
+                    
+                    <div class="filter-options-container">
+                        {% for slug, nome in status_choices %} <label class="filter-option-checkbox">
+                            <span class="option-name">{{ nome }}</span>
+                            <input type="checkbox" name="cat" value="{{ slug }}" 
+                                   {% if slug in categorias_ativas %}checked{% endif %}
+                                   class="custom-checkbox">
+                        </label>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4 text-center">
+                        <button type="submit" class="btn-filter-trigger py-3">APLICAR MISTURA</button>
+                        <a href="{% url 'home' %}" class="text-danger-muted small py-2 mt-2">Limpar Filtros</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -15,7 +15,7 @@ def caminho_livro(instance, filename):
     pasta = instance.id if instance.id else f"temp_{slugify(instance.titulo)}"
     return os.path.join('media', str(pasta), filename)
 
-class Livros(models.Model):
+class Livro(models.Model):
     titulo = models.CharField(max_length=200)
     # Valor slug para o link do livro personalizado
     slug = models.SlugField(unique=True, blank=True, max_length=255)
@@ -28,14 +28,29 @@ class Livros(models.Model):
         decimal_places=2, 
         validators=[MinValueValidator(Decimal('0.01'))]
         )
-    STATUS_CHOICES = [
+    STATUS_CHOICES_CARACTERISTICAS = [
         ('capa-dura', 'Capa Dura'),
         ('impressão-especial', 'Impressão Especial'), 
         ('contra-capa', 'Contra Capa')
     ]
-    especial = MultiSelectField(
-        max_length=25,
-        choices = STATUS_CHOICES,
+    STATUS_CHOICES_CATEGORIA = [
+        ('artes', 'Design + Arte + Tattoo'),
+        ('nerd', 'Quadrinhos + Nerdices'),
+        ('estudos', 'História + Sociologia + Filosofia + Linguística'),
+        ('brumed', 'Bruxaria + Meditação'),
+        ('erotica', 'Erótica'),
+    ]
+    categoria = MultiSelectField(
+        max_length=200,
+        choices = STATUS_CHOICES_CATEGORIA,
+        null = True,
+        blank = True,
+        default=None
+    )
+
+    caracteristicas = MultiSelectField(
+        max_length=100,
+        choices = STATUS_CHOICES_CARACTERISTICAS,
         null = True,
         blank = True,
         default=None
@@ -43,7 +58,7 @@ class Livros(models.Model):
     capa = models.ImageField(
         upload_to=caminho_livro,
         # Formatos aceitos:
-        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'webm', 'png'])]
+        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'webp', 'png'])]
         )
     video_demonstracao = models.FileField(
         upload_to=caminho_livro,
@@ -57,40 +72,58 @@ class Livros(models.Model):
     
 
     def save(self, *args, **kwargs):
-            # 1. Garante o slug
             self.slug = slugify(self.titulo)
             
-            # 2. Lógica para limpeza de arquivos antigos (substituição)
             if self.pk:
-                antigo = Livros.objects.get(pk=self.pk)
+                antigo = Livro.objects.get(pk=self.pk)
                 if antigo.capa and self.capa and antigo.capa != self.capa:
                     if os.path.isfile(antigo.capa.path): os.remove(antigo.capa.path)
                 if antigo.video_demonstracao and self.video_demonstracao and antigo.video_demonstracao != self.video_demonstracao:
                     if os.path.isfile(antigo.video_demonstracao.path): os.remove(antigo.video_demonstracao.path)
 
-            # 3. Salva os dados (Aqui o ID é gerado se for novo)
             is_new = self.pk is None
             super().save(*args, **kwargs)
 
-            # 4. A MÁGICA: Se for novo, move da pasta temp para a pasta ID
             if is_new:
-                old_path = os.path.join(settings.MEDIA_ROOT, 'livros', f"temp_{self.slug}")
-                new_path = os.path.join(settings.MEDIA_ROOT, 'livros', str(self.id))
+                # Pegamos o caminho base da pasta temporária usando o slug gerado
+                pasta_temp_nome = f"temp_{self.slug}"
+                # IMPORTANTE: Verifique se no seu caminho_livro você está usando 'livros' ou direto 'media'
+                # Ajustei para bater com a sua estrutura de pastas da imagem:
+                old_path = os.path.join(settings.MEDIA_ROOT, 'media', pasta_temp_nome)
+                new_path = os.path.join(settings.MEDIA_ROOT, 'media', str(self.id))
                 
                 if os.path.exists(old_path):
-                    # Se a pasta de destino já existir por erro, removemos
-                    if os.path.exists(new_path): shutil.rmtree(new_path)
+                    if os.path.exists(new_path):
+                        # Se a pasta ID já existe (por erro anterior), movemos os arquivos de dentro
+                        for file in os.listdir(old_path):
+                            shutil.move(os.path.join(old_path, file), os.path.join(new_path, file))
+                        os.rmdir(old_path)
+                    else:
+                        # Caso normal: renomeia a pasta inteira
+                        os.rename(old_path, new_path)
                     
-                    os.rename(old_path, new_path)
-                    
-                    # Atualiza os caminhos no objeto para apontar para a pasta com ID
+                    # Atualiza os nomes no banco de dados para refletir o novo caminho
                     if self.capa:
-                        self.capa.name = self.capa.name.replace(f"temp_{self.slug}", str(self.id))
+                        self.capa.name = self.capa.name.replace(pasta_temp_nome, str(self.id))
                     if self.video_demonstracao:
-                        self.video_demonstracao.name = self.video_demonstracao.name.replace(f"temp_{self.slug}", str(self.id))
+                        self.video_demonstracao.name = self.video_demonstracao.name.replace(pasta_temp_nome, str(self.id))
                     
-                    # Salva novamente apenas os campos de arquivo para atualizar o banco
+                    # Salva apenas os caminhos atualizados
                     super().save(update_fields=['capa', 'video_demonstracao'])
 
     def __str__(self):
         return self.titulo
+    
+
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+
+@receiver(post_delete, sender=Livro)
+def deletar_pasta_livro(sender, instance, **kwargs):
+    # O MEDIA_ROOT aponta para a pasta 'media' do seu projeto
+    # instance.id ainda está acessível no objeto mesmo após deletado do banco
+    caminho_pasta = os.path.join(settings.MEDIA_ROOT, 'media', str(instance.id))
+    
+    if os.path.exists(caminho_pasta):
+        shutil.rmtree(caminho_pasta)
+        print(f"Faxina concluída: Pasta {instance.id} removida com sucesso.")
