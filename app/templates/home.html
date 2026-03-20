@@ -28,26 +28,38 @@
         background: linear-gradient(to right, var(--accent-category), transparent);
         opacity: 0.5;
     }
+    /* Badge em Destaque (Filtrado) */
+    .badge-highlight {
+        background-color: var(--accent-category) !important;
+        color: var(--bg-deep) !important; /* Texto escuro para dar contraste com a cor viva */
+        border-color: var(--accent-category) !important;
+        font-weight: 700;
+        box-shadow: 0 0 10px rgba(var(--accent-category-rgb), 0.2);
+    }
+
 </style>
 <div class="container-fluid px-md-5 mt-4">
-    
     <div class="d-flex justify-content-between align-items-end">
         <div class="breadcrumb-container">
             <a href="{% url 'home' %}" class="btn-breadcrumb-back">livros</a>
             {% if categoria_nome_bonito %}
-                <span class="breadcrumb-label">/ {{ categoria_nome_bonito }}</span>
+                    <span id="label-categoria-pc" class="breadcrumb-label d-none d-md-inline">/ {{ categoria_nome_bonito }}</span>
+                    
+                    <span class="breadcrumb-label d-inline d-md-none" style="font-size: 0.75rem; opacity: 0.8;">
+                        (Filtros: {{ categorias_ativas|length }})
+                    </span>
             {% endif %}
             <span class="btn-breadcrumb-back" style="pointer-events: none;">:</span>
         </div>
-
         <button class="btn-filter-trigger" data-bs-toggle="modal" data-bs-target="#filterModal">
-            Filtrar +
+            <span class="d-none d-md-inline">Filtrar +</span>
+            <i class="bi bi-funnel-fill d-inline d-md-none"></i>
         </button>
     </div>
     
     <div class="section-divider"></div>
 
-    <div class="book-grid">
+    <div class="book-grid" id="book-results">
     {% for livro in livros %}
     <div class="book-card">
         <div class="book-media">
@@ -68,15 +80,29 @@
             </span>
             <h3 class="book-title">{{ livro.titulo }}</h3>
             
-            <div class="badge-group">
-                {% for carac in livro.caracteristicas %}
-                    <span class="book-badge">{{ carac }}</span>
-                {% endfor %}
-            </div>
-
+        <div class="badge-group">
+            {# 1º Loop: Mostra apenas as características que foram selecionadas no filtro #}
+            {% for slug, nome in car_choices %}
+                {% if slug in livro.caracteristicas and slug in caracteristicas_ativas %}
+                    <span class="book-badge badge-highlight">{{ nome }}</span>
+                {% endif %}
+            {% endfor %}
+            {# 2º Loop: Mostra o resto #}
+            {% for slug, nome in car_choices %}
+                {% if slug in livro.caracteristicas and slug not in caracteristicas_ativas %}
+                    <span class="book-badge">{{ nome }}</span>
+                {% endif %}
+            {% endfor %}
+        </div>
             <div class="book-price">R$ {{ livro.preco }}</div>
         </div>
     </div>
+    {% empty %}
+        <div class="empty-search-state">
+            <img src="/media/defaults/thertasad.webp" class="empty-search-image" alt="Nada encontrado">
+            <h2 class="empty-search-text">Nenhum livro encontrado para sua busca!</h2>
+            <p class="empty-search-subtext">Tente termos mais simples ou verifique a ortografia.</p>
+        </div>
     {% endfor %}
     </div>
 </div>
@@ -88,10 +114,11 @@
             
             <div class="modal-body p-4">
                 <form action="{% url 'home' %}" method="GET" id="filterForm">
-                    <p class="text-muted small mb-4 text-uppercase letter-spacing-2">Filtrar Categorias:</p>
+                    <p class="text-muted big mb-4 text-uppercase letter-spacing-s">Filtrar Categorias :</p>
                     
                     <div class="filter-options-container">
-                        {% for slug, nome in status_choices %} <label class="filter-option-checkbox">
+                        {% for slug, nome in cat_choices %} 
+                        <label class="filter-option-checkbox">
                             <span class="option-name">{{ nome }}</span>
                             <input type="checkbox" name="cat" value="{{ slug }}" 
                                    {% if slug in categorias_ativas %}checked{% endif %}
@@ -99,9 +126,19 @@
                         </label>
                         {% endfor %}
                     </div>
+                    <div class="features-options-container">
+                        {% for slug, nome in car_choices %} 
+                        <label class="filter-option-carac">
+                            <span class="option-name-carac">{{ nome }}</span>
+                            <input type="checkbox" name="car" value="{{ slug }}" 
+                                {% if slug in caracteristicas_ativas %}checked{% endif %}
+                                class="custom-checkbox-carac">
+                        </label>
+                        {% endfor %}
+                    </div>
 
                     <div class="d-grid gap-2 mt-4 text-center">
-                        <button type="submit" class="btn-filter-trigger py-3">APLICAR MISTURA</button>
+                        <button type="submit" class="btn-filter-trigger py-3">APLICAR FILTRO</button>
                         <a href="{% url 'home' %}" class="text-danger-muted small py-2 mt-2">Limpar Filtros</a>
                     </div>
                 </form>

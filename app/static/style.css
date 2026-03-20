@@ -1,11 +1,20 @@
+/* ==========================================================================
+   VARIÁVEIS GLOBAIS
+   ========================================================================== */
 :root {
     --bg-deep: #0D0D0D;
     --bg-card: #1A1A1A;
     --accent-off-white: #F2F2EB;
-    --gray-text: #D1D1D1; /* Cinza mais claro para melhor leitura */
+    --gray-text: #D1D1D1;
     --glass-border: rgba(242, 242, 235, 0.1);
 }
-
+/* --- ROLAGEM SUAVE --- */
+html {
+    scroll-behavior: smooth;
+}
+/* ==========================================================================
+   BASE
+   ========================================================================== */
 body {
     background-color: var(--bg-deep);
     color: var(--accent-off-white);
@@ -13,7 +22,10 @@ body {
     margin: 0;
 }
 
-/* --- NAVBAR EXPANDIDA --- */
+
+/* ==========================================================================
+   NAVBAR
+   ========================================================================== */
 .custom-navbar {
     background-color: rgba(13, 13, 13, 0.98) !important;
     backdrop-filter: blur(12px);
@@ -21,9 +33,8 @@ body {
     padding: 0.8rem 0 !important;
 }
 
-/* Container-fluid faz a navbar ocupar toda a largura da tela */
 .custom-navbar .container {
-    max-width: 95% !important; /* Ocupa quase toda a lateral no PC */
+    max-width: 95% !important;
     padding: 0 20px;
 }
 
@@ -34,14 +45,13 @@ body {
     color: var(--accent-off-white) !important;
 }
 
-/* --- LINKS COM CONTRASTE REAL --- */
 .navbar-nav .nav-link {
-    color: var(--gray-text) !important; /* Cor mais clara para ler melhor */
+    color: var(--gray-text) !important;
     font-weight: 600;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     font-size: 0.85rem;
-    padding: 0.5rem 1.5rem !important; /* Mais respiro lateral no PC */
+    padding: 0.5rem 1.5rem !important;
     transition: all 0.3s ease;
 }
 
@@ -50,10 +60,57 @@ body {
     text-shadow: 0 0 10px rgba(242, 242, 235, 0.2);
 }
 
-/* --- SEARCH BAR --- */
+/* Ícone hamburguer estilo livro (mobile) */
+.book-icon {
+    width: 24px;
+    height: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.book-icon span {
+    display: block;
+    height: 2px;
+    background-color: var(--accent-off-white);
+}
+
+.book-icon span:nth-child(1) { width: 100%; }
+.book-icon span:nth-child(2) { width: 65%; }
+.book-icon span:nth-child(3) { width: 85%; }
+
+@media (max-width: 991px) {
+    .navbar-collapse {
+        margin-top: 1rem;
+        padding: 1rem 0 !important;
+        border-top: 1px solid var(--glass-border);
+    }
+
+    .navbar-nav {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .nav-link {
+        padding: 12px 0 !important;
+        font-size: 1rem !important;
+        color: var(--accent-off-white) !important;
+    }
+
+    .search-container {
+        width: 100%;
+        margin: 1.5rem 0 0 0 !important;
+    }
+}
+
+
+/* ==========================================================================
+   SEARCH BAR
+   ========================================================================== */
 .search-container {
     position: relative;
-    width: 350px; /* Um pouco maior para preencher o PC */
+    width: 350px;
     margin-left: 2rem;
 }
 
@@ -84,256 +141,10 @@ body {
     font-size: 0.75rem;
 }
 
-/* --- ÍCONE DE LIVROS (MOBILE) --- */
-.book-icon {
-    width: 24px;
-    height: 18px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-end;
-}
 
-.book-icon span {
-    display: block;
-    height: 2px;
-    background-color: var(--accent-off-white);
-}
-
-.book-icon span:nth-child(1) { width: 100%; }
-.book-icon span:nth-child(2) { width: 65%; }
-.book-icon span:nth-child(3) { width: 85%; }
-
-/* --- RESPONSIVIDADE --- */
-@media (max-width: 991px) {
-    .navbar-collapse {
-        margin-top: 1rem;
-        padding: 1rem 0 !important;
-        border-top: 1px solid var(--glass-border);
-    }
-
-    .navbar-nav {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    .nav-link {
-        padding: 12px 0 !important; /* Um pouco mais de espaço no toque do celular */
-        font-size: 1rem !important;
-        color: var(--accent-off-white) !important;
-    }
-
-    .search-container {
-        width: 100%;
-        margin: 1.5rem 0 0 0 !important;
-    }
-}
-
-/* ------------------------------------------------------------------
-/*                         HOME.HTML
-/* ------------------------------------------------------------------
-/* --- GRID DE LIVROS --- */
-.book-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 30px;
-    padding: 20px 0;
-}
-
-/* --- CARD DESIGN --- */
-.book-card {
-    background: var(--bg-card);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.book-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-    border-color: rgba(242, 242, 235, 0.3);
-}
-
-/* --- MEDIA CONTAINER (CAPA E VÍDEO) --- */
-.book-media {
-    position: relative;
-    width: 100%;
-    padding-top: 140%; /* Proporção 5:7 clássica de livros */
-    overflow: hidden;
-    background: #000;
-}
-
-.book-capa, .book-video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Garante que tudo tenha o mesmo tamanho */
-    transition: opacity 0.5s ease;
-}
-
-.book-video {
-    opacity: 0;
-}
-
-.book-card:hover .book-video {
-    opacity: 1;
-}
-
-.book-card:hover .book-capa {
-    opacity: 0.3; /* Deixa a capa levemente visível no fundo ou some total */
-}
-
-/* --- CONTEÚDO DO CARD --- */
-.book-info {
-    padding: 1.2rem;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.book-category {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--gray-text);
-    margin-bottom: 0.5rem;
-}
-
-.book-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: var(--accent-off-white);
-    line-height: 1.2;
-}
-
-.book-price {
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: var(--accent-off-white);
-    margin-top: auto; /* Joga o preço para o fim do card */
-}
-
-/* --- BADGES (CARACTERÍSTICAS) --- */
-.badge-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    margin-bottom: 1rem;
-}
-
-.book-badge {
-    font-size: 0.6rem;
-    padding: 3px 8px;
-    border-radius: 4px;
-    background: rgba(242, 242, 235, 0.1);
-    border: 1px solid var(--glass-border);
-    color: var(--accent-off-white);
-    text-transform: uppercase;
-}
-/* --- TÍTULO DA SEÇÃO --- */
-.section-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 5px;
-    color: var(--accent-off-white);
-}
-
-.section-divider {
-    height: 1px;
-    background-color: var(--accent-off-white);
-    width: 100%;
-    margin-bottom: 30px;
-    opacity: 0.3;
-}
-
-/* --- GRID AJUSTADO --- */
-.book-grid {
-    display: grid;
-    /* No PC: cards levemente menores (min 220px em vez de 280px) */
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
-    padding-bottom: 50px;
-}
-
-/* --- CARD PROPORCIONAL --- */
-.book-card {
-    background: var(--bg-card);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px; /* Cantos levemente menos arredondados para ser mais "sharp" */
-    overflow: hidden;
-    transition: all 0.3s ease;
-    height: 100%;
-}
-
-.book-media {
-    position: relative;
-    width: 100%;
-    padding-top: 140%; /* Mantém a proporção de livro */
-    overflow: hidden;
-    background: #000;
-}
-
-.book-capa, .book-video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* --- INFO COMPACTA --- */
-.book-info {
-    padding: 1rem;
-}
-
-.book-title {
-    font-size: 0.95rem; /* Fonte menor para o card menor */
-    font-weight: 600;
-    margin: 5px 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; /* Evita que títulos longos quebrem o card */
-}
-
-.book-price {
-    font-size: 1.1rem;
-    font-weight: 800;
-}
-
-/* --- RESPONSIVIDADE MOBILE (2 CARDS POR LINHA) --- */
-@media (max-width: 576px) {
-    .book-grid {
-        grid-template-columns: repeat(2, 1fr); /* Força 2 colunas no celular */
-        gap: 12px; /* Espaço menor para caber melhor */
-    }
-
-    .book-info {
-        padding: 0.7rem;
-    }
-
-    .book-title {
-        font-size: 0.85rem;
-    }
-
-    .badge-group {
-        display: none; /* Esconde badges no mobile para não poluir o card pequeno */
-    }
-}
-/* ------------------------------------------------------------------
-/* Breadcrumb Dinâmico (Título que muda) 
-/* ------------------------------------------------------------------ */
-/* --- BREADCRUMB QUE É UM BOTÃO --- */
+/* ==========================================================================
+   BREADCRUMB
+   ========================================================================== */
 .breadcrumb-container {
     display: flex;
     align-items: center;
@@ -359,67 +170,282 @@ body {
 .breadcrumb-label {
     font-size: 1.3rem;
     font-weight: 300;
-    color: var(--accent-category, var(--gray-text)); /* Usa a cor da categoria ou cinza */
+    color: var(--accent-category, var(--gray-text));
     transition: color 0.5s ease;
     text-transform: uppercase;
     letter-spacing: 1px;
-}/* No seu style.css, atualize estas classes: */
+}
 
-/* --- BOTÃO DE FILTRO (O QUE ABRE O POPUP) --- */
-.btn-filter-trigger {
-    border: 1px solid var(--accent-category, var(--glass-border));
-    color: var(--accent-category, var(--accent-off-white));
-    background: rgba(242, 242, 235, 0.05);
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 0.7rem;
+.active-filters-count {
+    font-size: 0.9rem !important;
+    font-weight: 400;
+    opacity: 0.7;
+    letter-spacing: 1px;
+    text-transform: none;
+}
+
+@media (max-width: 768px) {
+    .breadcrumb-container {
+        align-items: baseline;
+        gap: 4px;
+    }
+
+    .active-filters-count {
+        font-size: 0.75rem !important;
+    }
+}
+
+
+/* ==========================================================================
+   SECTION DIVIDER
+   ========================================================================== */
+.section-divider {
+    height: 1px;
+    background-color: var(--accent-off-white);
+    width: 100%;
+    margin-bottom: 30px;
+    opacity: 0.3;
+}
+
+.section-title {
+    font-size: 1.5rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 2px;
-    transition: all 0.3s;
+    margin-bottom: 5px;
+    color: var(--accent-off-white);
 }
 
+
+/* ==========================================================================
+   BOTÃO DE FILTRO
+   ========================================================================== */
 .btn-filter-trigger {
     background: transparent;
     border: 1px solid var(--accent-category, var(--accent-off-white));
     color: var(--accent-category, var(--accent-off-white));
-    transition: all 0.3s ease;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.7rem;
     font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    min-width: 110px;
+    height: 40px;
+    transition: all 0.3s ease;
 }
+
 .btn-filter-trigger:hover {
     background: var(--accent-category, var(--accent-off-white)) !important;
-    /* Aqui está o segredo: a cor do texto muda para o fundo deep no hover */
-    color: #0D0D0D !important; 
+    color: #0D0D0D !important;
     box-shadow: 0 0 20px var(--accent-category);
 }
-/* --- POPUP DE FILTROS (MODAL GLASS) --- */
+
+@media (max-width: 768px) {
+    .btn-filter-trigger {
+        padding: 6px 10px !important;
+        min-width: 42px;
+        font-size: 1.1rem !important;
+    }
+}
+
+
+/* ==========================================================================
+   GRID DE LIVROS
+   ========================================================================== */
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    padding-bottom: 50px;
+}
+
+@media (max-width: 576px) {
+    .book-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+}
+
+
+/* ==========================================================================
+   CARD DE LIVRO
+   ========================================================================== */
+.book-card {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.book-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+    border-color: rgba(242, 242, 235, 0.3);
+}
+
+/* Media (capa e vídeo) */
+.book-media {
+    position: relative;
+    width: 100%;
+    padding-top: 140%; /* Proporção clássica de livro */
+    overflow: hidden;
+    background: #000;
+}
+
+.book-capa,
+.book-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.5s ease;
+}
+
+.book-video {
+    opacity: 0;
+}
+
+.book-card:hover .book-video {
+    opacity: 1;
+}
+
+.book-card:hover .book-capa {
+    opacity: 0.3;
+}
+
+/* Conteúdo do card */
+.book-info {
+    padding: 1rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.book-category {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gray-text);
+    margin-bottom: 0.5rem;
+}
+
+.book-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 5px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--accent-off-white);
+    line-height: 1.2;
+}
+
+.book-price {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--accent-off-white);
+    margin-top: auto;
+}
+
+@media (max-width: 576px) {
+    .book-info {
+        padding: 0.7rem;
+    }
+
+    .book-title {
+        font-size: 0.85rem;
+    }
+
+    .badge-group {
+        display: none; /* Esconde badges no mobile */
+    }
+}
+
+
+/* ==========================================================================
+   BADGES
+   ========================================================================== */
+.badge-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 1rem;
+}
+
+.book-badge {
+    font-size: 0.6rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(242, 242, 235, 0.1);
+    border: 1px solid var(--glass-border);
+    color: var(--accent-off-white);
+    text-transform: uppercase;
+}
+
+/* ==========================================================================
+   ESTADO VAZIO (NENHUM RESULTADO)
+   ========================================================================== */
+.empty-search-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    width: 100%;
+}
+
+.empty-search-image {
+    width: 50vw;
+    max-width: 280px;
+    height: auto;
+    margin-bottom: 25px;
+    opacity: 0.9;
+    transition: transform 0.3s ease;
+}
+
+.empty-search-image:hover {
+    transform: scale(1.05);
+}
+
+.empty-search-text {
+    color: #FFFFFF;
+    font-size: 1.2rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.empty-search-subtext {
+    color: var(--gray-text);
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+
+/* ==========================================================================
+   MODAL DE FILTROS
+   ========================================================================== */
 .modal-filter-content {
     backdrop-filter: blur(20px);
     border-radius: 15px !important;
-    background: rgba(13, 13, 13, 0.98) !important; /* Um pouco mais opaco para ler melhor */
+    background: rgba(13, 13, 13, 0.98) !important;
     border: 1px solid var(--glass-border) !important;
 }
 
-.filter-option {
-    display: block;
-    padding: 15px 20px;
-    color: var(--gray-text);
-    text-decoration: none;
-    font-weight: 500;
-    border-bottom: 1px solid rgba(242, 242, 235, 0.05);
-    transition: all 0.2s;
-}
-
-.filter-option:hover {
-    color: var(--accent-off-white);
-    background: rgba(255, 255, 255, 0.05);
-    padding-left: 30px; /* Efeito de deslize ao passar o mouse */
-}
-
-.filter-option:last-child { border: none; }
-/* ------------------------------------------------------------------
-/* Modal de filtro
-/* ------------------------------------------------------------------ */
 .btn-close-custom {
     position: absolute;
     right: 20px;
@@ -437,7 +463,6 @@ body {
     color: var(--accent-category);
 }
 
-/* Layout das opções no popup */
 .filter-option-checkbox {
     display: flex;
     justify-content: space-between;
@@ -454,7 +479,8 @@ body {
 }
 
 .option-name {
-    color: var(--gray-text);
+    color: #FFFFFF;
+    font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.3s;
 }
@@ -487,15 +513,45 @@ body {
     color: var(--bg-deep);
     font-size: 14px;
 }
+
+.filter-option {
+    display: block;
+    padding: 15px 20px;
+    color: var(--gray-text);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(242, 242, 235, 0.05);
+    transition: all 0.2s;
+}
+
+.filter-option:hover {
+    color: var(--accent-off-white);
+    background: rgba(255, 255, 255, 0.05);
+    padding-left: 30px;
+}
+
+.filter-option:last-child {
+    border: none;
+}
+
+/* Texto do título dentro do modal */
 .letter-spacing-2 {
     color: var(--accent-off-white) !important;
     opacity: 0.9;
     font-weight: 700;
     letter-spacing: 2px;
 }
-/* --- BOTÃO "LIMPAR FILTROS" (VERMELHO SUTIL) --- */
+/* letter spacing pro S kkk */
+.letter-spacing-s {
+    color: var(--accent-off-white) !important;
+    opacity: 0.9;
+    font-weight: 700;
+    letter-spacing: -0.1px;
+}
+
+/* Botão "Limpar Filtros" */
 .text-danger-muted {
-    color: #a33b3b !important; /* Vermelho sóbrio, nada gritante */
+    color: #a33b3b !important;
     text-decoration: none;
     transition: all 0.3s;
     font-weight: 600;
@@ -503,13 +559,77 @@ body {
 }
 
 .text-danger-muted:hover {
-    color: #ff4d4d !important; /* Brilha levemente ao passar o mouse */
+    color: #ff4d4d !important;
     opacity: 1;
 }
 
-/* --- OPÇÕES DE CATEGORIA --- */
-.option-name {
-    color: #FFFFFF !important; /* Branco puro para máxima leitura no fundo escuro */
-    font-size: 0.9rem;
+/* Checkbox de caracteristicas */
+.features-options-container {
+    display: flex;
+    flex-wrap: wrap; /* Permite quebrar linha se o celular for muito pequeno */
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* O item individual (comprimido) */
+.filter-option-carac {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-option-carac:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-category);
+}
+
+.option-name-carac {
+    color: var(--gray-text);
+    font-size: 0.8rem;
     font-weight: 500;
+    white-space: nowrap; /* Impede o texto de quebrar dentro do item */
+}
+
+/* A Checkbox igual a das categorias, mas em tamanho menor/ajustado */
+.custom-checkbox-carac {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s;
+    flex-shrink: 0; /* Impede a box de esmagar */
+}
+
+.custom-checkbox-carac:checked {
+    background-color: var(--accent-category);
+    border-color: var(--accent-category);
+    box-shadow: 0 0 10px var(--accent-category);
+}
+
+.custom-checkbox-carac:checked::after {
+    content: '✔';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--bg-deep);
+    font-size: 11px;
+}
+
+/* Garante que no celular elas fiquem lado a lado em vez de uma por linha */
+@media (max-width: 576px) {
+    .features-options-container {
+        display: flex;
+        flex-direction: row; 
+    }
 }

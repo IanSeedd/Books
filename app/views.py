@@ -11,9 +11,11 @@ def rgb_to_hex(rgb):
 
 def homeview(request):
     # Agora pegamos uma lista de categorias
+    query = request.GET.get('q', '') # Pega o termo de busca
     categorias_selecionadas = request.GET.getlist('cat')
+    caracteristicas_selecionadas = request.GET.getlist('car')
     livros = Livro.objects.all()
-    
+
     cores_categorias = {
         'artes': '#FF5733', 'nerd': '#00D4FF', 'estudos': '#A3E635',
         'brumed': '#9333EA', 'erotica': '#FB7185',
@@ -21,7 +23,7 @@ def homeview(request):
 
     nomes_bonitos = []
     rgb_list = []
-
+    
     if categorias_selecionadas:
         # Filtra livros que pertencem a QUALQUER uma das categorias selecionadas
         livros = livros.filter(categoria__in=categorias_selecionadas)
@@ -42,12 +44,22 @@ def homeview(request):
             cor_tema = "#F2F2EB"
     else:
         cor_tema = "#F2F2EB"
+    # Filtro para caracteristicas
+    if caracteristicas_selecionadas:
+        for car in caracteristicas_selecionadas:
+            livros = livros.filter(caracteristicas__icontains=car)
 
-    # No final da sua homeview em views.py
+    # Refinamento para busca com filtros ativos
+    if query:
+        livros = livros.filter(titulo__icontains=query)
+
+
     return render(request, 'home.html', {
         'livros': livros,
         'categorias_ativas': categorias_selecionadas,
+        'caracteristicas_ativas': caracteristicas_selecionadas,
         'categoria_nome_bonito': " + ".join(nomes_bonitos) if nomes_bonitos else None,
         'cor_tema': cor_tema,
-        'status_choices': Livro.STATUS_CHOICES_CATEGORIA # Adicione isso aqui!
+        'cat_choices': Livro.STATUS_CHOICES_CATEGORIA, # choices de categoria
+        'car_choices': Livro.STATUS_CHOICES_CARACTERISTICAS # choices de caracteristica
     })
