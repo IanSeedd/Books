@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="text-center animate-fade-in">
+        <div class="error-code-wrapper">
+            <h1 class="error-code">404</h1>
+            <div class="error-mascot">
+                <img src="/media/defaults/march.webp" class="march-404" alt="March perdida">
+            </div>
+        </div>
+
+        <h2 class="mt-4">Página não encontrada...</h2>
+        <p class="text-muted">Parece que este livro ainda não foi escrito, ou a March o escondeu em outra estante.</p>
+
+        <a href="{% url 'home' %}" class="btn-back mt-4 d-inline-block text-decoration-none">
+            <i class="bi bi-house-door"></i> VOLTAR PARA A BIBLIOTECA
+        </a>
+    </div>
+</div>
+
+<style>
+    .error-code {
+        font-size: 10rem;
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.05); /* Bem sutil ao fundo */
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+    }
+
+    .error-code-wrapper {
+        position: relative;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .march-404 {
+        width: 180px;
+        position: relative;
+        z-index: 2;
+        filter: drop-shadow(0 0 20px rgba(0,0,0,0.8));
+        animation: float-404 4s ease-in-out infinite;
+    }
+
+    @keyframes float-404 {
+        0%, 100% { transform: translateY(0) rotate(-5deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+    }
+
+    .btn-back {
+        border: 1px solid var(--accent-category);
+        color: var(--accent-category);
+        padding: 12px 30px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+
+    .btn-back:hover {
+        background: var(--accent-category);
+        color: #000;
+        box-shadow: 0 0 20px var(--accent-category);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 mb-5 animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">
+                {% if is_edit %}Editar Livro{% else %}Adicionar Novo Livro{% endif %}
+            </h2>
+        </div>
+        <a href="{% url 'dashboard' %}" class="btn-back text-decoration-none">
+            <i class="bi bi-arrow-left"></i> Voltar ao Painel
+        </a>
+    </div>
+
+    <form method="POST" action="{% if is_edit %}{% url 'edit_livro' livro.id %}{% else %}{% url 'add_livro' %}{% endif %}" enctype="multipart/form-data" class="add-book-form">
+        {% csrf_token %}
+        
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card-dark p-4 h-100">
+                    <h5 class="mb-4"><i class="bi bi-images text-success"></i> Mídias</h5>
+                    
+                    <label class="upload-area mb-4" id="drop-area-capa">
+                        <input type="file" name="capa" id="id_capa" accept="image/*" {% if not is_edit %}required{% endif %} hidden>
+                        <div class="preview-container" id="preview-capa-container" {% if not form.instance.capa %}style="display: none;"{% endif %}>
+                            <img id="preview-capa" src="{% if form.instance.capa %}{{ form.instance.capa.url }}{% endif %}" alt="Preview da Capa">
+                        </div>
+                        <div class="upload-placeholder" id="placeholder-capa" {% if form.instance.capa %}style="display: none;"{% endif %}>
+                            <i class="bi bi-cloud-arrow-up fs-2"></i>
+                            <span class="d-block mt-2 fw-bold">Upload da Capa *</span>
+                            <small class="text-muted">Clique ou arraste a imagem</small>
+                        </div>
+                    </label>
+
+                    <label class="upload-area" id="drop-area-video">
+                        <input type="file" name="video_demonstracao" id="id_video" accept="video/mp4,video/webm" hidden>
+                        <div class="preview-container" id="preview-video-container" {% if not form.instance.video_demonstracao %}style="display: none;"{% endif %}>
+                            <video id="preview-video" controls muted>
+                                <source src="{% if form.instance.video_demonstracao %}{{ form.instance.video_demonstracao.url }}{% endif %}" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="upload-placeholder" id="placeholder-video" {% if form.instance.video_demonstracao %}style="display: none;"{% endif %}>
+                            <i class="bi bi-camera-video fs-2"></i>
+                            <span class="d-block mt-2 fw-bold">Vídeo Demonstração</span>
+                            <small class="text-muted">Opcional (MP4)</small>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card-dark p-4">
+                    <h5 class="mb-4"><i class="bi bi-info-circle text-success"></i> Detalhes da Obra</h5>
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger mb-3">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        <div class="col-12 form-group">
+                            <label class="form-label">Título *</label>
+                            <input type="text" name="titulo" id="id_titulo" class="custom-input" maxlength="200" value="{{ form.instance.titulo|default:'' }}" required>
+                            <div class="char-counter"><span id="count-titulo">0</span> / 200</div>
+                            {% if form.titulo.errors %}<div class="text-danger small">{{ form.titulo.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">Autor *</label>
+                            <input type="text" name="autor" id="id_autor" class="custom-input" maxlength="100" value="{{ form.instance.autor|default:'' }}" required>
+                            <div class="char-counter"><span id="count-autor">0</span> / 100</div>
+                            {% if form.autor.errors %}<div class="text-danger small">{{ form.autor.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">Editora *</label>
+                            <input type="text" name="editora" id="id_editora" class="custom-input" maxlength="100" value="{{ form.instance.editora|default:'' }}" required>
+                            <div class="char-counter"><span id="count-editora">0</span> / 100</div>
+                            {% if form.editora.errors %}<div class="text-danger small">{{ form.editora.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">Preço (R$) *</label>
+                            <input type="number" name="preco" class="custom-input" step="0.01" min="0.01" value="{{ form.instance.preco|default:'' }}" required>
+                            {% if form.preco.errors %}<div class="text-danger small">{{ form.preco.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6 form-group d-flex align-items-end pb-2">
+                            {% if is_edit %}
+                                <label class="custom-checkbox-wrapper">
+                                    <input type="checkbox" name="vendido" class="custom-check" {% if form.instance.vendido %}checked{% endif %}>
+                                    <span class="check-label text-danger fw-bold"><i class="bi bi-tag-fill me-1"></i> Marcar como VENDIDO</span>
+                                </label>
+                            {% else %}
+                                <input type="hidden" name="vendido" value="off">
+                            {% endif %}
+                            {% if form.vendido.errors %}<div class="text-danger small">{{ form.vendido.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-12 form-group">
+                            <label class="form-label">Descrição *</label>
+                            <textarea name="descricao" id="id_descricao" class="custom-input" rows="6" maxlength="8900" required>{{ form.instance.descricao|default:'' }}</textarea>
+                            <div class="char-counter"><span id="count-descricao">0</span> / 8900</div>
+                            {% if form.descricao.errors %}<div class="text-danger small">{{ form.descricao.errors }}</div>{% endif %}
+                        </div>
+
+                        <!-- Categorias e Características (adicionados manualmente) -->
+                        <div class="col-12 form-group">
+                            <label class="form-label">Categorias</label>
+                            <div class="row">
+                                {% for value, label in form.categoria.field.choices %}
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="categoria" value="{{ value }}" id="cat_{{ value }}"
+                                                {% if value in form.instance.categoria %}checked{% endif %}>
+                                            <label class="form-check-label" for="cat_{{ value }}">{{ label }}</label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.categoria.errors %}<div class="text-danger small">{{ form.categoria.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-12 form-group">
+                            <label class="form-label">Características</label>
+                            <div class="row">
+                                {% for value, label in form.caracteristicas.field.choices %}
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="caracteristicas" value="{{ value }}" id="carac_{{ value }}"
+                                                {% if value in form.instance.caracteristicas %}checked{% endif %}>
+                                            <label class="form-check-label" for="carac_{{ value }}">{{ label }}</label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.caracteristicas.errors %}<div class="text-danger small">{{ form.caracteristicas.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-end">
+                        <button type="submit" class="btn-save">
+                            <i class="bi bi-check2-circle"></i> {% if is_edit %}SALVAR ALTERAÇÕES{% else %}SALVAR LIVRO{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    
+        // --- 1. LÓGICA DE PREVIEW DE IMAGEM (Capa) ---
+        const inputCapa = document.getElementById('id_capa');
+        const previewCapaContainer = document.getElementById('preview-capa-container');
+        const previewCapaImg = document.getElementById('preview-capa');
+        const placeholderCapa = document.getElementById('placeholder-capa');
+
+        inputCapa.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                previewCapaImg.src = URL.createObjectURL(file);
+                previewCapaContainer.style.display = 'block';
+                placeholderCapa.style.display = 'none';
+            } else {
+                // Se não selecionou arquivo e não tem imagem atual, esconde preview
+                if (!previewCapaImg.src || previewCapaImg.src === window.location.href) {
+                    previewCapaContainer.style.display = 'none';
+                    placeholderCapa.style.display = 'block';
+                } else {
+                    // Mantém a imagem atual (já existente)
+                    previewCapaContainer.style.display = 'block';
+                    placeholderCapa.style.display = 'none';
+                }
+            }
+        });
+
+        // --- 2. LÓGICA DE PREVIEW DE VÍDEO ---
+        const inputVideo = document.getElementById('id_video');
+        const previewVideoContainer = document.getElementById('preview-video-container');
+        const previewVideoEl = document.getElementById('preview-video');
+        const placeholderVideo = document.getElementById('placeholder-video');
+
+        inputVideo.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                previewVideoEl.src = URL.createObjectURL(file);
+                previewVideoContainer.style.display = 'block';
+                placeholderVideo.style.display = 'none';
+            } else {
+                // Se não selecionou vídeo e não tem vídeo atual, esconde preview
+                if (!previewVideoEl.src || previewVideoEl.src === window.location.href) {
+                    previewVideoContainer.style.display = 'none';
+                    placeholderVideo.style.display = 'block';
+                } else {
+                    // Mantém o vídeo atual (já existente)
+                    previewVideoContainer.style.display = 'block';
+                    placeholderVideo.style.display = 'none';
+                }
+            }
+        });
+
+        // --- 3. LÓGICA DOS CONTADORES DE CARACTERES ---
+        function setupCounter(inputId, counterId) {
+            const input = document.getElementById(inputId);
+            const counter = document.getElementById(counterId);
+            if (!input) return;
+
+            // Atualiza assim que carrega (caso seja edição e já tenha texto)
+            counter.textContent = input.value.length;
+            
+            // Atualiza enquanto digita
+            input.addEventListener('input', function() {
+                counter.textContent = this.value.length;
+                
+                // Fica vermelho se chegar perto do limite (90% do total)
+                const maxLength = this.getAttribute('maxlength');
+                if (this.value.length >= maxLength * 0.9) {
+                    counter.style.color = '#ff4444';
+                } else {
+                    counter.style.color = '#888';
+                }
+            });
+        }
+
+        setupCounter('id_titulo', 'count-titulo');
+        setupCounter('id_autor', 'count-autor');
+        setupCounter('id_editora', 'count-editora');
+        setupCounter('id_descricao', 'count-descricao');
+    });
+</script>
+{% endblock %}

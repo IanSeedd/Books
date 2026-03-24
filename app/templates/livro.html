@@ -1,0 +1,684 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    :root { --accent-category: {{ cor_tema }}; }
+</style>
+
+<div class="container-fluid px-md-5 mt-5 animate-fade-in">
+    <a href="{% url 'home' %}" class="btn-back mb-4">
+        <i class="bi bi-arrow-left"></i> VOLTAR
+    </a>
+
+    <div class="row g-5">
+        <div class="col-lg-5">
+            <div class="media-sidebar">
+                {% if livro.video_demonstracao %}
+                    <div class="steam-carousel">
+                        <div class="main-viewer">
+                            <div id="main-capa" class="viewer-item active">
+                                <img src="{{ livro.capa.url }}" class="standard-media" id="cover-img">
+                            </div>
+                            <div id="main-video" class="viewer-item">
+                                <video id="player" muted loop playsinline class="standard-media">
+                                    <source src="{{ livro.video_demonstracao.url }}" type="video/mp4">
+                                </video>
+                            </div>
+                        </div>
+
+                        <div class="thumb-strip">
+                            <div class="thumb-item active" onclick="switchMedia('capa')">
+                                <img src="{{ livro.capa.url }}">
+                            </div>
+                            <div class="thumb-item" onclick="switchMedia('video')">
+                                <div class="video-icon-overlay"><i class="bi bi-play-fill"></i></div>
+                                <video src="{{ livro.video_demonstracao.url }}" muted></video>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="single-cover-wrapper">
+                        <img src="{{ livro.capa.url }}" class="standard-media" id="cover-img">
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="book-header-detail">
+                <h1 class="book-main-title">{{ livro.titulo }}</h1>
+                <p class="book-credits">
+                    Autor: <span class="highlight">{{ livro.autor }}</span> 
+                    <span class="mx-2">|</span> 
+                    Editora: <span class="highlight">{{ livro.editora }}</span>
+                </p>
+                
+                <div class="book-categories-text">
+                    <i class="bi bi-tags me-2"></i> {{ livro.get_categoria_display }}
+                </div>
+            </div>
+            
+            <br><br>
+            {% if not livro.vendido %}
+            <div class="payment-area p-4">
+                <div class="price-tag mb-3">
+                    <span class="currency">R$</span> {{ livro.preco }}
+                </div>
+                <a href="https://wa.me/5521985842859?text=Olá,%20gostaria%20de%20pedir%20o%20livro%20{{ livro.titulo|urlencode }}." 
+                target="_blank" 
+                class="btn-checkout text-decoration-none d-flex align-items-center justify-content-center">
+                    PEDIR <i class="bi bi-whatsapp ms-2"></i>
+                </a>
+            </div>
+            {% else %}
+            <div class="payment-area sold-out-overlap p-4">
+                <div class="sold-out-layout">
+                    <div class="sold-out-content">
+                        <h5 class="sold-out-title">
+                            <i class="bi bi-info-circle-fill me-2"></i> OPS! JÁ FOI...
+                        </h5>
+                        <p class="sold-out-text">
+                            Desculpe, porém esse livro talvez já tenha sido vendido! <br>
+                            <span class="d-block mt-1">Consulte a disponibilidade no WhatsApp.</span>
+                        </p>
+                        
+                        <a href="https://wa.me/5521985842859?text=Olá,%20gostaria%20de%20saber%20a%20disponibilidade%20do%20livro%20{{ livro.titulo|urlencode }}." 
+                        target="_blank" 
+                        class="btn-secondary-sold mt-3 text-decoration-none d-inline-flex align-items-center justify-content-center">
+                            CONSULTAR <i class="bi bi-whatsapp ms-2"></i>
+                        </a>
+                    </div>
+
+                    <div class="sold-out-mascot-wrapper">
+                        <img src="/media/defaults/march.webp" class="march-img-large" alt="March">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="book-description-box my-5">
+                <h4 class="detail-label">Descrição:</h4>
+                <div class="description-wrapper">
+                    <div id="bookDescription" class="description-content collapsed">
+                        {{ livro.descricao|linebreaks }}
+                    </div>
+                    <button id="readMoreBtn" class="btn-read-more" style="display: none;">
+                        Ler mais <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            {% if livro.caracteristicas %}
+            <div class="book-features-section mb-5">
+                <h4 class="detail-label">Detalhes:</h4>
+                <div class="badge-group">
+                    {% for slug, nome in car_choices %}
+                        {% if slug in livro.caracteristicas %}
+                            <span class="book-badge-pill">{{ nome }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAIS ================= -->
+
+<!-- Modal para ampliar a capa -->
+<div class="modal fade" id="coverModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"> <div class="modal-content modal-filter-content border-0 bg-transparent"> <div class="modal-header border-0 p-0 position-absolute top-0 end-0 z-3">
+                <button type="button" class="btn-close-custom bg-dark rounded-circle m-2" data-bs-dismiss="modal" aria-label="Fechar">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body p-0 d-flex justify-content-center align-items-center">
+                <div class="modal-cover-wrapper">
+                    <img src="{{ livro.capa.url }}" class="modal-cover-img" alt="Capa ampliada">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para vídeo com controles customizados -->
+{% if livro.video_demonstracao %}
+<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content modal-filter-content video-modal-content">
+            <div class="modal-header border-0 p-0 position-absolute top-0 end-0 z-3">
+                <button type="button" class="btn-close-custom bg-dark rounded-circle m-2" data-bs-dismiss="modal" aria-label="Fechar" style="background-color: rgba(0,0,0,0.7);">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="video-modal-container">
+                    <video id="modalVideo" class="modal-video" playsinline>
+                        <source src="{{ livro.video_demonstracao.url }}" type="video/mp4">
+                    </video>
+                    <div class="custom-controls">
+                        <div class="progress-bar-container">
+                            <input type="range" id="videoProgress" class="progress-slider" value="0" step="0.01">
+                        </div>
+                        <div class="controls-buttons">
+                            <button id="playPauseBtn" class="ctrl-btn"><i class="bi bi-play-fill"></i></button>
+                            <button id="skipBackBtn" class="ctrl-btn"><i class="bi bi-skip-backward-fill"></i> 10s</button>
+                            <button id="skipForwardBtn" class="ctrl-btn">10s <i class="bi bi-skip-forward-fill"></i></button>
+                            <div class="volume-container">
+                                <button id="volumeBtn" class="ctrl-btn"><i class="bi bi-volume-up-fill"></i></button>
+                                <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="1">
+                            </div>
+                            <span id="timeDisplay" class="time-display">00:00 / 00:00</span>
+                            <button id="fullscreenBtn" class="ctrl-btn"><i class="bi bi-fullscreen"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function switchMedia(type) {
+    const mainCapa = document.getElementById('main-capa');
+    const mainVideo = document.getElementById('main-video');
+    const player = document.getElementById('player');
+    const thumbs = document.querySelectorAll('.thumb-item');
+
+    mainCapa.classList.remove('active');
+    if(mainVideo) mainVideo.classList.remove('active');
+    thumbs.forEach(t => t.classList.remove('active'));
+
+    if (type === 'video') {
+        mainVideo.classList.add('active');
+        thumbs[1].classList.add('active');
+        if(player) player.play();
+    } else {
+        mainCapa.classList.add('active');
+        thumbs[0].classList.add('active');
+        if(player) player.pause();
+    }
+}
+
+// ========== CONTROLE DOS MODAIS ==========
+document.addEventListener('DOMContentLoaded', function() {
+    // Abrir modal da capa ao clicar na imagem principal
+    const coverImg = document.getElementById('cover-img');
+    if (coverImg) {
+        coverImg.style.cursor = 'pointer';
+        coverImg.addEventListener('click', function() {
+            const coverModal = new bootstrap.Modal(document.getElementById('coverModal'));
+            coverModal.show();
+        });
+    }
+
+    // Abrir modal do vídeo ao clicar no vídeo principal (se existir)
+    const mainVideoEl = document.getElementById('player');
+    if (mainVideoEl) {
+        mainVideoEl.style.cursor = 'pointer';
+        mainVideoEl.addEventListener('click', function() {
+            // Pausa o vídeo principal para economizar recursos
+            mainVideoEl.pause();
+            const videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+            videoModal.show();
+        });
+    }
+});
+
+// ========== CONTROLES PERSONALIZADOS DO VÍDEO MODAL ==========
+const modalVideo = document.getElementById('modalVideo');
+const playPauseBtn = document.getElementById('playPauseBtn');
+const progressSlider = document.getElementById('videoProgress');
+const skipBackBtn = document.getElementById('skipBackBtn');
+const skipForwardBtn = document.getElementById('skipForwardBtn');
+const volumeBtn = document.getElementById('volumeBtn');
+const volumeSlider = document.getElementById('volumeSlider');
+const timeDisplay = document.getElementById('timeDisplay');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+let videoInterval = null;
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function updateProgressAndTime() {
+    if (modalVideo.duration) {
+        const percent = (modalVideo.currentTime / modalVideo.duration) * 100;
+        progressSlider.value = percent;
+        timeDisplay.innerText = `${formatTime(modalVideo.currentTime)} / ${formatTime(modalVideo.duration)}`;
+    }
+}
+
+function togglePlay() {
+    if (modalVideo.paused) {
+        modalVideo.play();
+        playPauseBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
+        videoInterval = setInterval(updateProgressAndTime, 250);
+    } else {
+        modalVideo.pause();
+        playPauseBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+        clearInterval(videoInterval);
+    }
+}
+
+function skipBack() {
+    modalVideo.currentTime = Math.max(0, modalVideo.currentTime - 10);
+}
+
+function skipForward() {
+    modalVideo.currentTime = Math.min(modalVideo.duration, modalVideo.currentTime + 10);
+}
+
+function setVolume() {
+    const volume = volumeSlider.value;
+    modalVideo.volume = volume;
+    if (volume == 0) {
+        volumeBtn.innerHTML = '<i class="bi bi-volume-mute-fill"></i>';
+    } else if (volume <= 0.5) {
+        volumeBtn.innerHTML = '<i class="bi bi-volume-down-fill"></i>';
+    } else {
+        volumeBtn.innerHTML = '<i class="bi bi-volume-up-fill"></i>';
+    }
+}
+
+function toggleFullscreen() {
+    const modalContent = document.querySelector('#videoModal .modal-content');
+    
+    if (!document.fullscreenElement) {
+        modalContent.requestFullscreen().catch(err => {
+            console.log(`Erro ao entrar em tela cheia: ${err.message}`);
+        });
+        fullscreenBtn.innerHTML = '<i class="bi bi-fullscreen-exit"></i>';
+    } else {
+        document.exitFullscreen();
+        fullscreenBtn.innerHTML = '<i class="bi bi-fullscreen"></i>';
+    }
+}
+
+// Adicionar listeners quando o modal for carregado
+if (modalVideo && playPauseBtn) {
+    playPauseBtn.addEventListener('click', togglePlay);
+    skipBackBtn.addEventListener('click', skipBack);
+    skipForwardBtn.addEventListener('click', skipForward);
+    volumeSlider.addEventListener('input', setVolume);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+    modalVideo.addEventListener('ended', function() {
+        playPauseBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+        clearInterval(videoInterval);
+    });
+
+    modalVideo.addEventListener('loadedmetadata', function() {
+        progressSlider.max = 100;
+        timeDisplay.innerText = `00:00 / ${formatTime(modalVideo.duration)}`;
+    });
+
+    progressSlider.addEventListener('input', function() {
+        const newTime = (progressSlider.value / 100) * modalVideo.duration;
+        modalVideo.currentTime = newTime;
+        updateProgressAndTime();
+    });
+
+    // Quando o modal for fechado, pausar o vídeo e sair da tela cheia se necessário
+    const videoModalEl = document.getElementById('videoModal');
+    videoModalEl.addEventListener('hidden.bs.modal', function() {
+        if (!modalVideo.paused) {
+            modalVideo.pause();
+            playPauseBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+        }
+        clearInterval(videoInterval);
+        
+        // Sair da tela cheia se estiver ativa
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+            fullscreenBtn.innerHTML = '<i class="bi bi-fullscreen"></i>';
+        }
+        
+        // O vídeo principal permanece pausado (já estava pausado ao abrir o modal)
+    });
+
+    // Atualizar ícone do botão de tela cheia quando sair manualmente
+    document.addEventListener('fullscreenchange', function() {
+        if (!document.fullscreenElement) {
+            fullscreenBtn.innerHTML = '<i class="bi bi-fullscreen"></i>';
+        } else {
+            const fullscreenElement = document.fullscreenElement;
+            const modalContent = document.querySelector('#videoModal .modal-content');
+            if (fullscreenElement !== modalContent) {
+                fullscreenBtn.innerHTML = '<i class="bi bi-fullscreen"></i>';
+            }
+        }
+    });
+
+    // Inicializar volume
+    setVolume();
+}
+// Logica do "Ler mais"
+document.addEventListener('DOMContentLoaded', function() {
+    const desc = document.getElementById('bookDescription');
+    const btn = document.getElementById('readMoreBtn');
+
+    // Verifica se o texto transbordou (se é maior que a altura do container travado)
+    if (desc.scrollHeight > desc.clientHeight) {
+        btn.style.display = 'block'; // Mostra o botão só se o texto for grande
+    }
+
+    btn.addEventListener('click', function() {
+        if (desc.classList.contains('collapsed')) {
+            desc.classList.remove('collapsed');
+            desc.classList.add('expanded');
+            btn.innerHTML = 'Ler menos <i class="bi bi-chevron-up"></i>';
+        } else {
+            desc.classList.remove('expanded');
+            desc.classList.add('collapsed');
+            btn.innerHTML = 'Ler mais <i class="bi bi-chevron-down"></i>';
+            
+            // Opcional: Volta o scroll para o topo da descrição ao fechar
+            desc.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    });
+});
+</script>
+<style>
+/* Estilos adicionais para os modais do viewer e controles de vídeo, está aqui apenas por conveniencia */
+.modal-cover-wrapper {
+    width: 90vw; /* Mobile First: Ocupa 90% da largura da tela */
+    max-width: 450px; /* Não deixa ficar gigante em tablets/desktop */
+    aspect-ratio: 2 / 3; /* Proporção padrão de capas de livros */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.1); /* Fundo sutil para imagens com transparência */
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+}
+
+.modal-cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Garante que a imagem inteira apareça sem cortes */
+    display: block;
+}
+
+/* Ajustes para Desktop */
+@media (min-width: 992px) {
+    .modal-cover-wrapper {
+        width: 40vw; /* No PC, ocupa uma parcela menor da tela */
+        max-height: 85vh; /* Evita que o modal gere scroll vertical */
+    }
+}
+
+/* Ajuste do botão de fechar para o modal de capa */
+#coverModal .btn-close-custom {
+    background: rgba(0,0,0,0.6) !important;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Container do vídeo modal - agora com fundo preto e centralização */
+.video-modal-container {
+    position: relative;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.modal-video {
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    background: #000;
+    display: block;
+    object-fit: contain; /* Mantém proporções como a imagem */
+}
+
+.video-modal-content {
+    background: #000 !important;
+    border-radius: 0 !important;
+    overflow: hidden;
+}
+
+/* Controles customizados - responsivos */
+.custom-controls {
+    background: rgba(0, 0, 0, 0.85);
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.progress-bar-container {
+    width: 100%;
+}
+
+.progress-slider {
+    width: 100%;
+    cursor: pointer;
+    background: var(--accent-category);
+    height: 4px;
+    border-radius: 2px;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.progress-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent-category);
+    cursor: pointer;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
+
+.progress-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent-category);
+    cursor: pointer;
+    border: none;
+}
+
+.controls-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.ctrl-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+.ctrl-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.ctrl-btn:active {
+    transform: scale(0.95);
+}
+
+.volume-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.volume-slider {
+    width: 80px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.2);
+    height: 4px;
+    border-radius: 2px;
+    -webkit-appearance: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent-category);
+    cursor: pointer;
+}
+
+.time-display {
+    color: #fff;
+    font-size: 0.85rem;
+    font-family: monospace;
+    background: rgba(0,0,0,0.5);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* ========== MOBILE FIRST AJUSTES ========== */
+@media (max-width: 768px) {
+    /* Ajustes do modal de vídeo para mobile */
+    .modal-video {
+        max-height: 60vh;
+    }
+    
+    .controls-buttons {
+        gap: 8px;
+    }
+    
+    .ctrl-btn {
+        font-size: 0.9rem;
+        padding: 4px 6px;
+    }
+    
+    .ctrl-btn i {
+        font-size: 1rem;
+    }
+    
+    .volume-slider {
+        width: 60px;
+    }
+    
+    .time-display {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+    }
+    
+    .custom-controls {
+        padding: 8px 12px;
+        gap: 8px;
+    }
+    
+    /* Ajuste do botão de fechar no mobile */
+    .btn-close-custom {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+    
+    /* Melhorias nos thumbnails para mobile */
+    .thumb-strip {
+        max-width: 100%;
+        gap: 6px;
+    }
+    
+    .thumb-item {
+        width: 45px;
+        height: 64px;
+    }
+}
+
+/* Ajustes para telas muito pequenas */
+@media (max-width: 480px) {
+    .controls-buttons {
+        gap: 6px;
+    }
+    
+    .ctrl-btn {
+        font-size: 0.8rem;
+        padding: 4px 5px;
+    }
+    
+    .ctrl-btn i {
+        font-size: 0.9rem;
+    }
+    
+    .volume-slider {
+        width: 50px;
+    }
+    
+    .time-display {
+        font-size: 0.65rem;
+    }
+}
+
+/* Ajustes para desktop quando em tela cheia */
+:-webkit-full-screen .video-modal-content {
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+:fullscreen .video-modal-content {
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+:-webkit-full-screen .modal-video {
+    max-height: 90vh;
+    width: auto;
+    max-width: 100%;
+}
+
+:fullscreen .modal-video {
+    max-height: 90vh;
+    width: auto;
+    max-width: 100%;
+}
+
+:-webkit-full-screen .custom-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+:fullscreen .custom-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+</style>
+
+{% endblock %}

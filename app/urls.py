@@ -5,6 +5,10 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.homeview, name='home'),
+    path('<slug:slug>/', views.livroview, name='livro'),
+    path('dashboard/home', views.admin_dashboard, name='dashboard'),
+    path('dashboard/adicionar', views.add_livro, name='add_livro'),
+    path('dashboard/editar/<int:id>', views.edit_livro, name='edit_livro'), # Atualiza a  venda
 ]
 
 # Para renderizar as imagens
