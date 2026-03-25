@@ -2,6 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Livro
 from .forms import LivroForm
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.http import JsonResponse
 from django.db.models import Q, Case, When, IntegerField, Value
 
 # --- FUNÇÕES AUXILIARES DE COR ---
@@ -157,6 +160,21 @@ def edit_livro(request, id): # Usando 'id' para bater com o <int:id> da URL
         'livro': livro,
         'is_edit': True
     })
+# Views para o botão do dashboard
+@login_required
+@csrf_exempt # Apenas se o fetch tiver problemas com o token, mas o ideal é manter o token
+def update_book_status(request, id):
+    if request.method == 'POST':
+        livro = get_object_or_404(Livro, id=id)
+        data = json.loads(request.body)
+        
+        # Aqui usamos o formulário para validar a alteração
+        # Passamos apenas o dado do 'vendido' e o 'instance' do livro atual
+        livro.vendido = data.get('vendido', False)
+        livro.save()
+        
+        return JsonResponse({'status': 'success', 'vendido': livro.vendido})
+    return JsonResponse({'status': 'error'}, status=400)
 
 def p404_customizada(request, exception):
     return render(request, '404.html', status=404)

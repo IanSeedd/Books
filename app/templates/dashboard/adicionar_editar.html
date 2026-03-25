@@ -46,6 +46,11 @@
                             <small class="text-muted">Opcional (MP4)</small>
                         </div>
                     </label>
+
+                    <!-- Botão para trocar vídeo (aparece apenas quando há um vídeo selecionado) -->
+                    <button type="button" id="btn-change-video" class="btn-change-video" style="display: none;">
+                        <i class="bi bi-arrow-repeat me-1"></i> Trocar vídeo
+                    </button>
                 </div>
             </div>
 
@@ -149,6 +154,28 @@
     </form>
 </div>
 
+<style>
+    /* Estilo do botão de trocar vídeo */
+    .btn-change-video {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: var(--gray-text);
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 12px;
+        cursor: pointer;
+    }
+    .btn-change-video:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--accent-category, #25d366);
+        color: #fff;
+    }
+</style>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
     
@@ -182,25 +209,43 @@
         const previewVideoContainer = document.getElementById('preview-video-container');
         const previewVideoEl = document.getElementById('preview-video');
         const placeholderVideo = document.getElementById('placeholder-video');
+        const btnChangeVideo = document.getElementById('btn-change-video');
 
+        // Função para mostrar/ocultar botão de trocar vídeo
+        function toggleChangeVideoButton() {
+            const hasVideo = previewVideoContainer.style.display !== 'none';
+            btnChangeVideo.style.display = hasVideo ? 'block' : 'none';
+        }
+
+        // Atualiza o preview quando um arquivo é selecionado
         inputVideo.addEventListener('change', function() {
             const file = this.files[0];
             if (file) {
                 previewVideoEl.src = URL.createObjectURL(file);
                 previewVideoContainer.style.display = 'block';
                 placeholderVideo.style.display = 'none';
+                toggleChangeVideoButton(); // mostra o botão
             } else {
-                // Se não selecionou vídeo e não tem vídeo atual, esconde preview
+                // Se o usuário não selecionou nada, mantém o estado atual
+                // (não remove vídeo existente)
                 if (!previewVideoEl.src || previewVideoEl.src === window.location.href) {
                     previewVideoContainer.style.display = 'none';
                     placeholderVideo.style.display = 'block';
                 } else {
-                    // Mantém o vídeo atual (já existente)
                     previewVideoContainer.style.display = 'block';
                     placeholderVideo.style.display = 'none';
                 }
+                toggleChangeVideoButton();
             }
         });
+
+        // Clique no botão "Trocar vídeo" aciona o input de arquivo
+        btnChangeVideo.addEventListener('click', function() {
+            inputVideo.click();
+        });
+
+        // Configuração inicial: se já houver vídeo (edição), mostra o botão
+        toggleChangeVideoButton();
 
         // --- 3. LÓGICA DOS CONTADORES DE CARACTERES ---
         function setupCounter(inputId, counterId) {

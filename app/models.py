@@ -55,6 +55,7 @@ class Livro(models.Model):
         default=None
     )
     capa = models.ImageField(
+        default='media/defaults/hmarch.webp',
         upload_to=caminho_livro,
         # Formatos aceitos:
         validators=[FileExtensionValidator(allowed_extensions=['jpg', 'webp', 'png'])]

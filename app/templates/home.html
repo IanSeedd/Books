@@ -59,7 +59,7 @@
     
     <div class="section-divider"></div>
 
-    <div class="book-grid" id="book-results">
+    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-3 g-md-4" id="book-results">
     {% for livro in livros %}
     {% if not livro.vendido %}
     <a href="{% url 'livro' livro.slug %}" class="text-decoration-none">
