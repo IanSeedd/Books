@@ -20,7 +20,11 @@ class Livro(models.Model):
     # Valor slug para o link do livro personalizado
     slug = models.SlugField(unique=True, blank=True, max_length=255)
     autor = models.CharField(max_length=100)
-    editora = models.CharField(max_length=100)
+    editora = models.CharField(
+        max_length=100,
+        null = True,
+        blank = True,
+        )
     descricao = models.TextField(max_length=8900)
     preco = models.DecimalField(
         max_digits=6,
@@ -42,9 +46,9 @@ class Livro(models.Model):
     categoria = MultiSelectField(
         max_length=200,
         choices = STATUS_CHOICES_CATEGORIA,
-        null = True,
-        blank = True,
-        default=None
+        null = False,
+        blank = False,
+        default=['artes']
     )
 
     caracteristicas = MultiSelectField(
@@ -58,10 +62,11 @@ class Livro(models.Model):
         default='media/defaults/hmarch.webp',
         upload_to=caminho_livro,
         # Formatos aceitos:
-        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'webp', 'png'])]
+        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'webp', 'png', 'jpeg'])]
         )
     video_demonstracao = models.FileField(
         upload_to=caminho_livro,
+        max_length=500,
         null=True, 
         blank=True,
         # Formatos aceitos:
@@ -85,10 +90,9 @@ class Livro(models.Model):
             super().save(*args, **kwargs)
 
             if is_new:
-                # Pegamos o caminho base da pasta temporária usando o slug gerado
+                # Pega o caminho base da pasta temporária usando o slug gerado
                 pasta_temp_nome = f"temp_{self.slug}"
                 # IMPORTANTE: Verifique se no seu caminho_livro você está usando 'livros' ou direto 'media'
-                # Ajustei para bater com a sua estrutura de pastas da imagem:
                 old_path = os.path.join(settings.MEDIA_ROOT, 'media', pasta_temp_nome)
                 new_path = os.path.join(settings.MEDIA_ROOT, 'media', str(self.id))
                 
@@ -111,13 +115,40 @@ class Livro(models.Model):
                     # Salva apenas os caminhos atualizados
                     super().save(update_fields=['capa', 'video_demonstracao'])
 
+            # --- NOVA LÓGICA: Renomear arquivos para o padrão capa_id.ext e video_id.ext ---
+            def renomear_para_padrao(campo, prefixo):
+                arquivo = getattr(self, campo)
+                if not arquivo:
+                    return
+                # Pular renomeação para a imagem padrão (compartilhada)
+                if campo == 'capa' and 'defaults' in arquivo.name:
+                    return
+                if hasattr(arquivo, 'path') and os.path.exists(arquivo.path):
+                    dir_name = os.path.dirname(arquivo.path)
+                    nome_atual = os.path.basename(arquivo.name)
+                    ext = os.path.splitext(nome_atual)[1].lower()
+                    nome_desejado = f"{prefixo}_{self.id}{ext}"
+                    if nome_atual != nome_desejado:
+                        novo_caminho = os.path.join(dir_name, nome_desejado)
+                        try:
+                            os.rename(arquivo.path, novo_caminho)
+                            novo_relativo = os.path.join(os.path.dirname(arquivo.name), nome_desejado)
+                            # Atualiza o banco de dados sem chamar save() novamente
+                            Livro.objects.filter(pk=self.pk).update(**{campo: novo_relativo})
+                            setattr(self, campo, novo_relativo)
+                        except Exception:
+                            # Falha silenciosa para não quebrar a operação principal
+                            pass
+
+            renomear_para_padrao('capa', 'capa')
+            renomear_para_padrao('video_demonstracao', 'video')
+
     def __str__(self):
         return self.titulo
     
 
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
-
 @receiver(post_delete, sender=Livro)
 def deletar_pasta_livro(sender, instance, **kwargs):
     # O MEDIA_ROOT aponta para a pasta 'media' do seu projeto

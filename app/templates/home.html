@@ -3,14 +3,14 @@
 {% block content %}
 <style>
     :root {
-        /* A mágica acontece aqui: a variável global muda conforme a categoria */
+        /* a variável global muda conforme a categoria */
         --accent-category: {{ cor_tema }};
     }
 
     /* Aplicando a cor no Breadcrumb e nos detalhes */
     .breadcrumb-label {
         color: var(--accent-category) !important;
-        text-shadow: 0 0 15px rgba({{ cor_tema_rgb }}, 0.3); /* Brilho sutil */
+        text-shadow: 0 0 15px rgba({{ cor_tema_rgb }}, 0.3); 
     }
 
     .btn-filter-trigger {
@@ -31,7 +31,7 @@
     /* Badge em Destaque (Filtrado) */
     .badge-highlight {
         background-color: var(--accent-category) !important;
-        color: var(--bg-deep) !important; /* Texto escuro para dar contraste com a cor viva */
+        color: var(--bg-deep) !important; 
         border-color: var(--accent-category) !important;
         font-weight: 700;
         box-shadow: 0 0 10px rgba(var(--accent-category-rgb), 0.2);

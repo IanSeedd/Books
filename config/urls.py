@@ -15,10 +15,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import path, include
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path(f'login/{os.getenv('SECRET_LOGIN_KEY')}/', auth_views.LoginView.as_view(template_name='dashboard/login.html'), name='login'),
     path('', include('app.urls')),
 ]
 handler404 = 'app.views.p404_customizada' # 404 desconfigurado

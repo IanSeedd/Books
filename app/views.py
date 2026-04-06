@@ -4,6 +4,7 @@ from .models import Livro
 from .forms import LivroForm
 from django.views.decorators.csrf import csrf_exempt
 import json
+import random
 from django.http import JsonResponse
 from django.db.models import Q, Case, When, IntegerField, Value
 
@@ -17,6 +18,15 @@ def rgb_to_hex(rgb):
     return '#%02x%02x%02x' % rgb
 
 # --- VIEWS PÚBLICAS ---
+
+def escolha_por_mim(request):
+    # Pega um livro aleatório do banco de dados
+    livro_random = Livro.objects.filter(vendido=False).order_by('?').first()
+    
+    if livro_random:
+        return redirect('livro', slug=livro_random.slug)
+    # Se não houver nenhum livro no banco, volta para a home (só para garantir que não vai quebrar nada)
+    return redirect('home')
 
 def homeview(request):
     query = request.GET.get('q', '') 
@@ -73,7 +83,7 @@ def homeview(request):
     if categorias_selecionadas:
         livros = livros.order_by('-pontos_cat', 'id')
     else:
-        livros = livros.order_by('id')
+        livros = livros.order_by('-id')
 
     # Cálculo da Cor Média para o Tema
     if rgb_list:
@@ -162,7 +172,7 @@ def edit_livro(request, id): # Usando 'id' para bater com o <int:id> da URL
     })
 # Views para o botão do dashboard
 @login_required
-@csrf_exempt # Apenas se o fetch tiver problemas com o token, mas o ideal é manter o token
+@csrf_exempt 
 def update_book_status(request, id):
     if request.method == 'POST':
         livro = get_object_or_404(Livro, id=id)
@@ -178,3 +188,14 @@ def update_book_status(request, id):
 
 def p404_customizada(request, exception):
     return render(request, '404.html', status=404)
+# Views de deletar
+@login_required
+def delete_livro(request, id):
+    # Busca o livro ou retorna 404 se não existir
+    livro = get_object_or_404(Livro, id=id)
+    
+    if request.method == 'POST':
+        livro.delete()
+        return redirect('dashboard')
+    # Se tentarem acessar via GET por erro, apenas volta para o dashboard
+    return redirect('dashboard')

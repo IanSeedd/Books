@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
+    <div class="login-card p-4 animate-fade-in" style="width: 100%; max-width: 400px;">
+        
+        <div class="text-center mb-4">
+            <div class="mb-2" style="font-size: 2.5rem; color: var(--accent-category);">
+                <i class="bi bi-shield-lock"></i>
+            </div>
+            <h4 class="fw-bold m-0" style="color: var(--accent-off-white);">Acesso Restrito</h4>
+            <p style="color: var(--gray-text); font-size: 0.9rem;">Área Administrativa</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group mb-3">
+                <label class="form-label">Usuário</label>
+                <input type="text" name="username" class="custom-input" placeholder="Digite seu usuário" required autofocus>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="form-label">Senha</label>
+                <input type="password" name="password" class="custom-input" placeholder="••••••••" required>
+            </div>
+
+            {% if form.errors %}
+            <div class="login-error-msg py-2 px-3 mb-4">
+                <i class="bi bi-exclamation-circle me-1"></i> Usuário ou senha incorretos.
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn-filter-trigger w-100 py-3 fw-bold text-uppercase" style="letter-spacing: 1px;">
+                Entrar no Sistema
+            </button>
+        </form>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'home' %}" class="login-footer-link small text-decoration-none">
+                <i class="bi bi-arrow-left"></i> Voltar para a vitrine
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

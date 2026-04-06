@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% if user.is_authenticated %}
 {% block content %}
 <div class="container mt-5 mb-5 animate-fade-in">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -20,6 +21,7 @@
             <div class="col-lg-4">
                 <div class="card-dark p-4 h-100">
                     <h5 class="mb-4"><i class="bi bi-images text-success"></i> Mídias</h5>
+                    <span class="d-block mt-2 fw-bold">Upload da Capa *</span>
                     
                     <label class="upload-area mb-4" id="drop-area-capa">
                         <input type="file" name="capa" id="id_capa" accept="image/*" {% if not is_edit %}required{% endif %} hidden>
@@ -28,8 +30,6 @@
                         </div>
                         <div class="upload-placeholder" id="placeholder-capa" {% if form.instance.capa %}style="display: none;"{% endif %}>
                             <i class="bi bi-cloud-arrow-up fs-2"></i>
-                            <span class="d-block mt-2 fw-bold">Upload da Capa *</span>
-                            <small class="text-muted">Clique ou arraste a imagem</small>
                         </div>
                     </label>
 
@@ -43,8 +43,15 @@
                         <div class="upload-placeholder" id="placeholder-video" {% if form.instance.video_demonstracao %}style="display: none;"{% endif %}>
                             <i class="bi bi-camera-video fs-2"></i>
                             <span class="d-block mt-2 fw-bold">Vídeo Demonstração</span>
-                            <small class="text-muted">Opcional (MP4)</small>
+                            <small class="text-muted">Opcional</small>
                         </div>
+                        {% if form.video_demonstracao.errors %}
+                            <div class="text-danger small mt-2" style="background: rgba(220, 53, 69, 0.1); padding: 5px; border-radius: 4px;">
+                                {% for error in form.video_demonstracao.errors %}
+                                    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </label>
 
                     <!-- Botão para trocar vídeo (aparece apenas quando há um vídeo selecionado) -->
@@ -56,7 +63,7 @@
 
             <div class="col-lg-8">
                 <div class="card-dark p-4">
-                    <h5 class="mb-4"><i class="bi bi-info-circle text-success"></i> Detalhes da Obra</h5>
+                    <h5 class="mb-4"><i class="bi bi-info-circle text-success"></i> Detalhes</h5>
                     
                     {% if form.non_field_errors %}
                         <div class="alert alert-danger mb-3">{{ form.non_field_errors }}</div>
@@ -78,8 +85,8 @@
                         </div>
 
                         <div class="col-md-6 form-group">
-                            <label class="form-label">Editora *</label>
-                            <input type="text" name="editora" id="id_editora" class="custom-input" maxlength="100" value="{{ form.instance.editora|default:'' }}" required>
+                            <label class="form-label">Editora (Opcional)</label>
+                            <input type="text" name="editora" id="id_editora" class="custom-input" maxlength="100" value="{{ form.instance.editora|default:'' }}" >
                             <div class="char-counter"><span id="count-editora">0</span> / 100</div>
                             {% if form.editora.errors %}<div class="text-danger small">{{ form.editora.errors }}</div>{% endif %}
                         </div>
@@ -97,7 +104,7 @@
                                     <span class="check-label text-danger fw-bold"><i class="bi bi-tag-fill me-1"></i> Marcar como VENDIDO</span>
                                 </label>
                             {% else %}
-                                <input type="hidden" name="vendido" value="off">
+                                
                             {% endif %}
                             {% if form.vendido.errors %}<div class="text-danger small">{{ form.vendido.errors }}</div>{% endif %}
                         </div>
@@ -109,22 +116,29 @@
                             {% if form.descricao.errors %}<div class="text-danger small">{{ form.descricao.errors }}</div>{% endif %}
                         </div>
 
-                        <!-- Categorias e Características (adicionados manualmente) -->
+                        <!-- Categorias e Características -->
                         <div class="col-12 form-group">
-                            <label class="form-label">Categorias</label>
-                            <div class="row">
-                                {% for value, label in form.categoria.field.choices %}
-                                    <div class="col-md-6">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="categoria" value="{{ value }}" id="cat_{{ value }}"
-                                                {% if value in form.instance.categoria %}checked{% endif %}>
-                                            <label class="form-check-label" for="cat_{{ value }}">{{ label }}</label>
-                                        </div>
+                        <label class="form-label">Categorias *</label>
+                        <label class="form-label">(Selecione pelomenos uma)</label>
+                        <div class="row" id="categoria-group">
+                            {% for value, label in form.categoria.field.choices %}
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input category-checkbox" type="checkbox" name="categoria" 
+                                        value="{{ value }}" id="cat_{{ value }}"
+                                        {% if value in form.instance.categoria %}checked{% endif %}>
+                                        <label class="form-check-label" for="cat_{{ value }}">{{ label }}</label>
                                     </div>
-                                {% endfor %}
-                            </div>
-                            {% if form.categoria.errors %}<div class="text-danger small">{{ form.categoria.errors }}</div>{% endif %}
+                                </div>
+                            {% endfor %}
                         </div>
+                        {% if form.categoria.errors %}
+                            <div class="text-danger small mt-1">{{ form.categoria.errors }}</div>
+                        {% endif %}
+                        <div id="categoria-error" class="text-danger small mt-1" style="display: none;">
+                            <i class="bi bi-exclamation-triangle"></i> Selecione pelo menos uma categoria.
+                        </div>
+                    </div>
 
                         <div class="col-12 form-group">
                             <label class="form-label">Características</label>
@@ -144,6 +158,11 @@
                     </div>
 
                     <div class="mt-4 text-end">
+                        {% if is_edit %}
+                                <button type="button" class="btn-delete-trigger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="bi bi-trash3"></i> Deletar Livro
+                                </button>
+                            {% endif %}
                         <button type="submit" class="btn-save">
                             <i class="bi bi-check2-circle"></i> {% if is_edit %}SALVAR ALTERAÇÕES{% else %}SALVAR LIVRO{% endif %}
                         </button>
@@ -153,33 +172,64 @@
         </div>
     </form>
 </div>
-
-<style>
-    /* Estilo do botão de trocar vídeo */
-    .btn-change-video {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: var(--gray-text);
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        width: 100%;
-        margin-top: 12px;
-        cursor: pointer;
-    }
-    .btn-change-video:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: var(--accent-category, #25d366);
-        color: #fff;
-    }
-</style>
-
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-content-dark animate-fade-in">
+        <div class="modal-header modal-header-dark">
+            <h5 class="modal-title fw-bold text-danger"> Atenção!</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body py-4 text-center">
+            <p class="fs-5">Você tem certeza que deseja excluir <strong>"{{ livro.titulo }}"</strong>?</p>
+            <p class="small">Esta ação é irreversível e removerá permanentemente todos os arquivos (capa e vídeo) do storage.</p>
+        </div>
+        <div class="modal-footer modal-footer-dark">
+            <form action="{% url 'delete_livro' livro.id %}" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-confirm-delete">Sim, Deletar Permanentemente</button>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    
-        // --- 1. LÓGICA DE PREVIEW DE IMAGEM (Capa) ---
+        const form = document.querySelector('.add-book-form');
+        
+        // --- 1. VALIDAÇÃO DE CATEGORIA ---
+        const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
+        const categoryError = document.getElementById('categoria-error');
+
+        function validateCategories() {
+            // Verifica se existe ao menos um checkbox marcado
+            const isChecked = Array.from(categoryCheckboxes).some(cb => cb.checked);
+            
+            if (isChecked) {
+                categoryError.style.display = 'none';
+            }
+            return isChecked;
+        }
+
+        // Adiciona o evento de mudança em cada checkbox para sumir o erro em tempo real
+        categoryCheckboxes.forEach(cb => {
+            cb.addEventListener('change', validateCategories);
+        });
+
+        // Intercepta o envio do formulário
+        form.addEventListener('submit', function(e) {
+            const isCategoryValid = validateCategories();
+            
+            if (!isCategoryValid) {
+                e.preventDefault(); // Impede o envio se nada estiver marcado
+                categoryError.style.display = 'block';
+                categoryError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        // EXECUÇÃO IMEDIATA: Verifica ao carregar a página (essencial para Edição)
+        validateCategories();
+
+        // --- 2. LÓGICA DE PREVIEW DE IMAGEM (Capa) ---
         const inputCapa = document.getElementById('id_capa');
         const previewCapaContainer = document.getElementById('preview-capa-container');
         const previewCapaImg = document.getElementById('preview-capa');
@@ -191,83 +241,56 @@
                 previewCapaImg.src = URL.createObjectURL(file);
                 previewCapaContainer.style.display = 'block';
                 placeholderCapa.style.display = 'none';
-            } else {
-                // Se não selecionou arquivo e não tem imagem atual, esconde preview
-                if (!previewCapaImg.src || previewCapaImg.src === window.location.href) {
-                    previewCapaContainer.style.display = 'none';
-                    placeholderCapa.style.display = 'block';
-                } else {
-                    // Mantém a imagem atual (já existente)
-                    previewCapaContainer.style.display = 'block';
-                    placeholderCapa.style.display = 'none';
-                }
             }
         });
 
-        // --- 2. LÓGICA DE PREVIEW DE VÍDEO ---
+        // --- 3. LÓGICA DE PREVIEW DE VÍDEO ---
         const inputVideo = document.getElementById('id_video');
         const previewVideoContainer = document.getElementById('preview-video-container');
         const previewVideoEl = document.getElementById('preview-video');
         const placeholderVideo = document.getElementById('placeholder-video');
         const btnChangeVideo = document.getElementById('btn-change-video');
+        const sourceEl = previewVideoEl.querySelector('source'); // Seleciona o source de dentro do video
 
-        // Função para mostrar/ocultar botão de trocar vídeo
         function toggleChangeVideoButton() {
-            const hasVideo = previewVideoContainer.style.display !== 'none';
+            // Verifica se o source tem um link (vídeo do banco) ou se o elemento video tem um blob (vídeo recém escolhido)
+            const hasVideo = (sourceEl && sourceEl.src && !sourceEl.src.endsWith('/')) || 
+                            (previewVideoEl.src && previewVideoEl.src.startsWith('blob:'));
+            
             btnChangeVideo.style.display = hasVideo ? 'block' : 'none';
         }
 
-        // Atualiza o preview quando um arquivo é selecionado
         inputVideo.addEventListener('change', function() {
             const file = this.files[0];
             if (file) {
-                previewVideoEl.src = URL.createObjectURL(file);
+                const url = URL.createObjectURL(file);
+                previewVideoEl.src = url; // Define o src direto no vídeo para o preview funcionar
                 previewVideoContainer.style.display = 'block';
                 placeholderVideo.style.display = 'none';
-                toggleChangeVideoButton(); // mostra o botão
-            } else {
-                // Se o usuário não selecionou nada, mantém o estado atual
-                // (não remove vídeo existente)
-                if (!previewVideoEl.src || previewVideoEl.src === window.location.href) {
-                    previewVideoContainer.style.display = 'none';
-                    placeholderVideo.style.display = 'block';
-                } else {
-                    previewVideoContainer.style.display = 'block';
-                    placeholderVideo.style.display = 'none';
-                }
                 toggleChangeVideoButton();
             }
         });
 
-        // Clique no botão "Trocar vídeo" aciona o input de arquivo
-        btnChangeVideo.addEventListener('click', function() {
-            inputVideo.click();
-        });
+        btnChangeVideo.addEventListener('click', () => inputVideo.click());
 
-        // Configuração inicial: se já houver vídeo (edição), mostra o botão
+        // EXECUTA AO CARREGAR A PÁGINA
         toggleChangeVideoButton();
 
-        // --- 3. LÓGICA DOS CONTADORES DE CARACTERES ---
+        // --- 4. LÓGICA DOS CONTADORES DE CARACTERES ---
         function setupCounter(inputId, counterId) {
             const input = document.getElementById(inputId);
             const counter = document.getElementById(counterId);
-            if (!input) return;
+            if (!input || !counter) return;
 
-            // Atualiza assim que carrega (caso seja edição e já tenha texto)
-            counter.textContent = input.value.length;
-            
-            // Atualiza enquanto digita
-            input.addEventListener('input', function() {
-                counter.textContent = this.value.length;
-                
-                // Fica vermelho se chegar perto do limite (90% do total)
-                const maxLength = this.getAttribute('maxlength');
-                if (this.value.length >= maxLength * 0.9) {
-                    counter.style.color = '#ff4444';
-                } else {
-                    counter.style.color = '#888';
-                }
-            });
+            const update = () => {
+                const len = input.value.length;
+                counter.textContent = len;
+                const max = input.getAttribute('maxlength');
+                counter.style.color = len >= max * 0.9 ? '#ff4444' : '#888';
+            };
+
+            input.addEventListener('input', update);
+            update(); // Init
         }
 
         setupCounter('id_titulo', 'count-titulo');
@@ -277,3 +300,6 @@
     });
 </script>
 {% endblock %}
+{% else %}
+    <script>window.location.href = "/404-not-found/";</script>
+{% endif %}

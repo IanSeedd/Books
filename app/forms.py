@@ -12,7 +12,7 @@ class LivroForm(forms.ModelForm):
     categoria = forms.MultipleChoiceField(
         choices=Livro.STATUS_CHOICES_CATEGORIA,
         widget=forms.CheckboxSelectMultiple,
-        required=False,
+        required=True,
     )
     caracteristicas = forms.MultipleChoiceField(
         choices=Livro.STATUS_CHOICES_CARACTERISTICAS,
@@ -33,7 +33,7 @@ class LivroForm(forms.ModelForm):
         capa = self.cleaned_data.get('capa')
         if capa:
             ext = os.path.splitext(capa.name)[1].lower()
-            if ext not in ['.jpg', '.webp', '.png']:
+            if ext not in ['.jpg', '.webp', '.png', '.jpeg']:
                 raise ValidationError('Formato de imagem não suportado. Use JPG, WEBP ou PNG.')
         return capa
 

@@ -50,8 +50,10 @@
                 <h1 class="book-main-title">{{ livro.titulo }}</h1>
                 <p class="book-credits">
                     Autor: <span class="highlight">{{ livro.autor }}</span> 
+                    {% if livro.editora %}
                     <span class="mx-2">|</span> 
                     Editora: <span class="highlight">{{ livro.editora }}</span>
+                    {% endif %}
                 </p>
                 
                 <div class="book-categories-text">
