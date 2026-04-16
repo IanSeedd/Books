@@ -7,22 +7,22 @@
         <div class="error-code-wrapper">
             <h1 class="error-code">404</h1>
             <div class="error-mascot">
-                <img src="/media/defaults/march.webp" class="march-404" alt="March perdida">
+                <img src="/media/defaults/mei.webp" class="mei-404" alt="March perdida">
             </div>
         </div>
 
         <h2 class="mt-4">Página não encontrada...</h2>
-        <p class="text-muted">Parece que este livro ainda não foi escrito, ou a March o escondeu em outra estante.</p>
+        <p class="text-white">Parece que este livro ainda não foi escrito, nem os gênios foram capazes de encontrá-lo.</p>
 
         <a href="{% url 'home' %}" class="btn-back mt-4 d-inline-block text-decoration-none">
-            <i class="bi bi-house-door"></i> VOLTAR PARA A BIBLIOTECA
+            <i class="bi bi-house-door"></i> VOLTAR PARA O HOME
         </a>
     </div>
 </div>
 
 <style>
     .error-code {
-        font-size: 10rem;
+        font-size: 25rem;
         font-weight: 900;
         color: rgba(255, 255, 255, 0.05); /* Bem sutil ao fundo */
         position: absolute;
@@ -40,8 +40,8 @@
         justify-content: center;
     }
 
-    .march-404 {
-        width: 180px;
+    .mei-404 {
+        width: 22rem;
         position: relative;
         z-index: 2;
         filter: drop-shadow(0 0 20px rgba(0,0,0,0.8));
@@ -63,8 +63,61 @@
 
     .btn-back:hover {
         background: var(--accent-category);
-        color: #000;
-        box-shadow: 0 0 20px var(--accent-category);
+        color: #ffffff !important; 
+        box-shadow: 0 0 25px var(--accent-category), 0 0 10px rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+    /* --- RESPONSIVIDADE --- */
+    /* Tablets e telas médias (até 992px) */
+    @media (max-width: 992px) {
+        .error-code {
+            font-size: 18rem;
+        }
+        .mei-404 {
+            width: 18rem;
+        }
+        .error-code-wrapper {
+            height: 350px;
+        }
+    }
+
+    /* Celulares grandes (até 768px) */
+    @media (max-width: 768px) {
+        .error-code {
+            font-size: 12rem;
+        }
+        .mei-404 {
+            width: 14rem;
+        }
+        .error-code-wrapper {
+            height: 280px;
+        }
+        h2 {
+            font-size: 1.5rem;
+        }
+        p {
+            font-size: 0.9rem;
+            padding: 0 15px;
+        }
+    }
+
+    /* Celulares pequenos (até 480px) */
+    @media (max-width: 480px) {
+        .error-code {
+            font-size: 8rem;
+        }
+        .mei-404 {
+            width: 11rem;
+        }
+        .error-code-wrapper {
+            height: 220px;
+        }
+    }
+
+    /* --- ANIMAÇÕES E BOTÕES (MANTIDOS) --- */
+    @keyframes float-404 {
+        0%, 100% { transform: translateY(0) rotate(-5deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
     }
 </style>
 {% endblock %}

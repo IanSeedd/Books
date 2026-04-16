@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5 pt-5 text-center">
+    <div class="card-dark p-5 mx-auto" style="max-width: 400px; border-radius: 20px;">
+        <h3 class="fw-bold mb-4">Verificação de Segurança</h3>
+        <p class="text-white">Enviamos um código para {{ user.email }}.</p>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="codigo" class="form-control mb-3 text-center fs-4" 
+                   placeholder="000000" maxlength="6" required autofocus>
+            
+            {% if error %}
+                <p class="text-danger small">{{ error }}</p>
+            {% endif %}
+            
+            <button type="submit" class="btn-save w-100">VERIFICAR ACESSO</button>
+        </form>
+        
+        <a href="{% url 'login' %}" class="d-block mt-4 text-secondary small">Voltar ao login</a>
+    </div>
+    <div class="mt-4">
+        <p id="timer-container" class="text-secondary small">
+            Caso não recebeu o codigo espere: <span id="timer">60</span>s
+        </p>
+        <a href="{% url 'reenviar_2fa' %}" id="btn-reenviar" class="btn btn-outline-light btn-sm d-none">
+            <i class="bi bi-envelope-at"></i> Reenviar Código
+        </a>
+    </div>
+</div>
+<script>
+    // Sim eu sei que é perigoso ter esse script dentro do html, mas como o scopo do projeto meio que esconde essa pagina acho que é "oK"
+    document.addEventListener('DOMContentLoaded', function() {
+        let tempoRestante = 60; // 1 minuto
+        const timerElemento = document.getElementById('timer');
+        const timerContainer = document.getElementById('timer-container');
+        const btnReenviar = document.getElementById('btn-reenviar');
+
+        const contagem = setInterval(function() {
+            tempoRestante--;
+            timerElemento.textContent = tempoRestante;
+
+            if (tempoRestante <= 0) {
+                clearInterval(contagem);
+                timerContainer.classList.add('d-none'); // Esconde o texto do timer
+                btnReenviar.classList.remove('d-none'); // Mostra o botão de reenvio
+            }
+        }, 1000);
+    });
+</script>
+{% endblock %}

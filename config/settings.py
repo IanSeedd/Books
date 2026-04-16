@@ -122,3 +122,14 @@ STATIC_URL = 'static/'
 LOGIN_URL = 'login/'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'home'
+
+# Email:
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+# Para funcionar configure o ENV
+EMAIL_HOST_USER = os.getenv('EMAIL')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_KEY')  
+DEFAULT_FROM_EMAIL = f'BOOKS <{os.getenv('EMAIL')}>'

@@ -10,6 +10,8 @@ urlpatterns = [
     path('<slug:slug>/', views.livroview, name='livro'),
     # Views de ADM:
     path('dashboard/home', views.admin_dashboard, name='dashboard'),
+    path('dashboard/verify', views.view_2fa, name='view_2fa'),
+    path('dashboard/re-verify', views.reenviar_2fa, name='reenviar_2fa'), # Reenvio do codigo, apenas para algumas ocasiões incomuns
     path('update-book-status/<int:id>/', views.update_book_status, name='update_book_status'), # Botão de vendido
     path('dashboard/adicionar', views.add_livro, name='add_livro'),
     path('dashboard/editar/<int:id>', views.edit_livro, name='edit_livro'), 

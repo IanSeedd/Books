@@ -1,5 +1,5 @@
 /* ==========================================================================
-   VARIÁVEIS GLOBAIS
+   VARIAVEIS GLOBAIS
    ========================================================================== */
 :root {
     --bg-deep: #0D0D0D;
@@ -195,7 +195,7 @@ body {
 
 
 /* ==========================================================================
-   SECTION DIVIDER & TITLE
+   SECTION DIVIDER E TITLE
    ========================================================================== */
 .section-divider {
     height: 1px;
@@ -352,8 +352,10 @@ body {
 
 
 /* ==========================================================================
-   BADGES (home.html)
+   BADGES
    ========================================================================== */
+
+/* Grupo que envolve os badges */
 .badge-group {
     display: flex;
     flex-wrap: wrap;
@@ -361,6 +363,7 @@ body {
     margin-bottom: 1rem;
 }
 
+/* Badge discreto — usado nos cards da home.html */
 .book-badge {
     font-size: 0.6rem;
     padding: 3px 8px;
@@ -370,6 +373,28 @@ body {
     color: var(--accent-off-white);
     text-transform: uppercase;
 }
+
+/* Badge em destaque quando o filtro correspondente esta ativo */
+.badge-highlight {
+    background-color: var(--accent-category) !important;
+    color: var(--bg-deep) !important;
+    border-color: var(--accent-category) !important;
+    font-weight: 700;
+}
+
+/* Badge pill — usado na pagina de detalhe livro.html */
+.book-badge-pill {
+    font-size: 0.7rem;
+    padding: 6px 15px;
+    border: 1px solid var(--accent-category);
+    color: var(--accent-category);
+    border-radius: 50px;
+    font-weight: 600;
+    margin-right: 8px;
+    text-transform: uppercase;
+}
+
+/* Badge de categoria (pill com cor da categoria) */
 .category-badge {
     background-color: transparent;
     color: var(--accent-category);
@@ -380,6 +405,7 @@ body {
     font-weight: 600;
     letter-spacing: 1px;
 }
+
 
 /* ==========================================================================
    ESTADO VAZIO (home.html)
@@ -612,7 +638,6 @@ body {
    LIVRO.HTML - PAGINA DE DETALHE
    ========================================================================== */
 
-/* Botao Voltar */
 .btn-back {
     color: var(--gray-text);
     text-decoration: none;
@@ -630,7 +655,7 @@ body {
     transform: translateX(-5px);
 }
 
-/* Cabecalho do livro */
+/* Cabecalho */
 .book-main-title {
     font-size: 3.5rem;
     font-weight: 800;
@@ -698,15 +723,37 @@ body {
     font-weight: 300;
 }
 
-/* Badges de detalhe */
-.detail-badge {
-    padding: 6px 15px;
-    border: 1px solid var(--accent-category);
+/* Recolher/expandir descricao */
+.description-content.collapsed {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    position: relative;
+}
+
+.description-content.expanded {
+    display: block;
+    -webkit-line-clamp: unset;
+}
+
+.btn-read-more {
+    background: none;
+    border: none;
     color: var(--accent-category);
-    border-radius: 50px;
-    font-size: 0.7rem;
     font-weight: 600;
-    margin-right: 8px;
+    font-size: 0.9rem;
+    padding: 10px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: opacity 0.2s;
+}
+
+.btn-read-more:hover {
+    opacity: 0.8;
+    text-decoration: underline;
 }
 
 /* Grid tecnico */
@@ -788,131 +835,10 @@ body {
 
 
 /* ==========================================================================
-   LIVRO.HTML - PÁGINA DE DETALHE (TEXTOS E PAGAMENTO)
+   LIVRO.HTML - CARROSSEL DE MIDIA
    ========================================================================== */
 
-.btn-back {
-    color: var(--gray-text);
-    text-decoration: none;
-    font-size: 0.75rem;
-    letter-spacing: 2px;
-    font-weight: 600;
-    transition: 0.3s;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.btn-back:hover {
-    color: var(--accent-category);
-    transform: translateX(-5px);
-}
-
-.book-main-title {
-    font-size: 3.5rem;
-    font-weight: 800;
-    line-height: 1;
-    margin-bottom: 15px;
-    letter-spacing: -2px;
-}
-
-.book-credits {
-    font-size: 1.1rem;
-    color: var(--gray-text);
-    font-weight: 300;
-}
-
-.book-credits .highlight {
-    color: var(--accent-off-white);
-    font-weight: 600;
-}
-
-.book-categories-text {
-    color: var(--accent-category);
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: 700;
-}
-
-.detail-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    color: var(--accent-category);
-    margin-bottom: 15px;
-    display: block;
-    font-weight: 800;
-}
-
-.book-description-box {
-    padding: 30px;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
-    border-left: 3px solid var(--accent-category);
-    border-radius: 4px 16px 16px 4px;
-}
-
-.description-content {
-    font-size: 1.15rem;
-    line-height: 1.8;
-    color: var(--gray-text);
-    font-weight: 300;
-}
-
-.book-badge-pill {
-    font-size: 0.7rem;
-    padding: 6px 15px;
-    border: 1px solid var(--accent-category);
-    color: var(--accent-category);
-    border-radius: 50px;
-    font-weight: 600;
-    margin-right: 8px;
-    text-transform: uppercase;
-}
-
-.payment-area {
-    background: var(--bg-card);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    text-align: center;
-    padding: 1.5rem;
-}
-
-.price-tag {
-    font-size: 3rem;
-    font-weight: 800;
-    color: var(--accent-off-white);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.btn-checkout {
-    width: 100%;
-    background: var(--accent-category);
-    color: #000;
-    border: none;
-    padding: 20px;
-    font-weight: 900;
-    border-radius: 12px;
-    letter-spacing: 1px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    transition: filter 0.2s ease;
-}
-
-.btn-checkout i { font-size: 1.4rem; }
-.btn-checkout:hover { filter: brightness(0.9); }
-
-/* ==========================================================================
-   LIVRO.HTML - CARROSSEL DE MÍDIA (CORREÇÃO DE ESCALA PC/MOBILE)
-   ========================================================================== */
-
-/* Sidebar que segura a mídia */
+/* Sidebar que segura a midia */
 .steam-carousel {
     position: sticky;
     top: 100px;
@@ -921,16 +847,16 @@ body {
     align-items: center;
     gap: 15px;
     width: 100%;
-    max-width: 550px; /* Aumentado para permitir que o viewer cresça no PC */
+    max-width: 550px;
     margin: 0 auto;
 }
 
-/* Visualizador principal - Aumentado no PC conforme pedido */
-.main-viewer, 
+/* Visualizador principal */
+.main-viewer,
 .single-cover-wrapper {
     width: 100%;
-    max-width: 500px; /* Tamanho grande e imponente no PC */
-    aspect-ratio: 1 / 1.2; 
+    max-width: 500px;
+    aspect-ratio: 1 / 1.2;
     background: #000;
     border-radius: 12px;
     overflow: hidden;
@@ -939,7 +865,7 @@ body {
     position: relative;
 }
 
-/* Itens de mídia interna */
+/* Itens de midia interna */
 .viewer-item {
     position: absolute;
     top: 0; left: 0;
@@ -957,18 +883,18 @@ body {
 .standard-media {
     width: 100%;
     height: 100%;
-    object-fit: cover; 
+    object-fit: cover;
     display: block;
 }
 
-/* Miniaturas - Mantidas pequenas */
+/* Miniaturas */
 .thumb-strip {
     display: flex;
     gap: 8px;
     justify-content: center;
     flex-wrap: wrap;
     width: 100%;
-    max-width: 320px; /* Travas para não espalhar demais embaixo da imagem grande */
+    max-width: 320px;
 }
 
 .thumb-item {
@@ -984,19 +910,23 @@ body {
     transition: border-color 0.2s ease;
 }
 
-.thumb-item img, .thumb-item video {
+.thumb-item img,
+.thumb-item video {
     width: 100%;
     height: 100%;
     object-fit: cover;
     opacity: 0.45;
 }
 
-.thumb-item.active, .thumb-item:hover {
+.thumb-item.active,
+.thumb-item:hover {
     border-color: var(--accent-category);
 }
 
-.thumb-item.active img, .thumb-item.active video,
-.thumb-item:hover img, .thumb-item:hover video {
+.thumb-item.active img,
+.thumb-item.active video,
+.thumb-item:hover img,
+.thumb-item:hover video {
     opacity: 1;
 }
 
@@ -1010,30 +940,33 @@ body {
     pointer-events: none;
 }
 
-/* --- RESPONSIVIDADE (Ajuste para não ficar enorme no celular) --- */
 @media (max-width: 991px) {
-    .book-main-title { font-size: 2.5rem; }
-    
     .steam-carousel {
         position: relative;
         top: 0;
         margin-bottom: 30px;
     }
 
-    /* No celular, limitamos a largura para não ocupar a tela toda verticalmente */
-    .main-viewer, .single-cover-wrapper {
-        max-width: 320px; 
+    .main-viewer,
+    .single-cover-wrapper {
+        max-width: 320px;
         margin: 0 auto;
     }
 }
-/* Container Principal de Indisponibilidade */
+
+
+/* ==========================================================================
+   LIVRO.HTML - ESTADO VENDIDO
+   ========================================================================== */
+
+/* Container principal */
 .payment-area.sold-out-overlap {
     background: rgba(25, 25, 25, 0.9) !important;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     position: relative;
-    overflow: visible !important; /* CRÍTICO: permite a imagem sair do box */
-    margin-top: 40px; /* Espaço extra em cima caso ela suba */
+    overflow: visible !important;
+    margin-top: 40px;
 }
 
 .sold-out-layout {
@@ -1043,10 +976,9 @@ body {
     gap: 20px;
 }
 
-/* Conteúdo da esquerda */
 .sold-out-content {
     flex: 1;
-    z-index: 2; /* Garante que o texto fique legível */
+    z-index: 2;
 }
 
 .sold-out-title {
@@ -1062,28 +994,32 @@ body {
     margin: 0;
 }
 
-/* Wrapper da March */
+/* Mascote */
 .sold-out-mascot-wrapper {
     position: relative;
-    width: 130px; /* Largura base para o flex */
+    width: 130px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* A March propriamente dita */
 .march-img-large {
-    width: 180px; /* Aumentada consideravelmente */
+    width: 180px;
     height: auto;
     position: absolute;
-    right: -80px;  /* Faz ela sair pela direita */
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));
+    right: -80px;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6));
     animation: float-march 4s ease-in-out infinite;
     z-index: 5;
-    pointer-events: none; /* Evita que ela atrapalhe cliques no botão se sobrepor */
+    pointer-events: none;
 }
 
-/* Botão ajustado para o novo layout lateral */
+@keyframes float-march {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%       { transform: translateY(-10px) rotate(3deg); }
+}
+
+/* Botao secundario de vendido */
 .btn-secondary-sold {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
@@ -1102,25 +1038,18 @@ body {
     background: rgba(37, 211, 102, 0.1) !important;
 }
 
-/* Animação suave */
-@keyframes float-march {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-10px) rotate(3deg); }
-}
-
-/* AJUSTE PARA MOBILE (Fundamental) */
 @media (max-width: 576px) {
     .sold-out-layout {
-        flex-direction: column-reverse; /* March em cima no mobile */
+        flex-direction: column-reverse;
         text-align: center;
     }
-    
+
     .march-img-large {
         position: relative;
         bottom: 0;
         right: 0;
         width: 120px;
-        margin-bottom: -30px; /* Faz vazar para cima no mobile */
+        margin-bottom: -30px;
         margin-top: -60px;
     }
 
@@ -1129,127 +1058,98 @@ body {
         height: 60px;
     }
 }
-/* Limita a visualização inicial */
-.description-content.collapsed {
-    display: -webkit-box;
-    -webkit-line-clamp: 5; /* Número de linhas antes de cortar */
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    position: relative;
+
+
+/* ==========================================================================
+   DASHBOARD ADM
+   ========================================================================== */
+
+/* Botao Novo Livro */
+.btn-add-new {
+    background: #25d366;
+    color: #000;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: 0.3s;
+    border: none;
 }
 
-/* Estilo do botão "Ler mais" */
-.btn-read-more {
-    background: none;
-    border: none;
-    color: var(--accent-category);
-    font-weight: 600;
-    font-size: 0.9rem;
-    padding: 10px 0;
-    cursor: pointer;
+.btn-add-new:hover {
+    background: #1eb957;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+}
+
+/* Card do livro no painel */
+.admin-book-card {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: 0.2s;
+}
+
+.admin-card-img {
+    position: relative;
+    aspect-ratio: 2/3;
+}
+
+.admin-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Overlay de edicao */
+.admin-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
-    gap: 5px;
-    transition: opacity 0.2s;
+    justify-content: center;
+    opacity: 0;
+    transition: 0.3s;
 }
 
-.btn-read-more:hover {
-    opacity: 0.8;
-    text-decoration: underline;
+.admin-book-card:hover .admin-overlay {
+    opacity: 1;
 }
 
-/* Quando expandido, remove a trava */
-.description-content.expanded {
-    display: block;
-    -webkit-line-clamp: unset;
+.btn-edit {
+    background: white;
+    color: black;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 1.2rem;
 }
-/* ==========================================================================
-   Dashboard ADM
-   ========================================================================== */
-    /* Botão Adicionar */
-    .btn-add-new {
-        background: #25d366;
-        color: #000;
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-weight: 800;
-        text-decoration: none;
-        transition: 0.3s;
-        border: none;
-    }
 
-    .btn-add-new:hover {
-        background: #1eb957;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
-    }
+.admin-card-info h6 {
+    font-size: 0.85rem;
+    color: var(--accent-off-white);
+}
 
-    /* Card Administrativo */
-    .admin-book-card {
-        background: var(--bg-card);
-        border: 1px solid var(--glass-border);
-        border-radius: 8px;
-        overflow: hidden;
-        transition: 0.2s;
-    }
+.admin-price {
+    font-size: 0.8rem;
+    color: #25d366;
+    font-weight: bold;
+}
 
-    .admin-card-img {
-        position: relative;
-        aspect-ratio: 2/3;
-    }
-
-    .admin-card-img img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    /* Overlay de Edição */
-    .admin-overlay {
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: 0.3s;
-    }
-
-    .admin-book-card:hover .admin-overlay {
-        opacity: 1;
-    }
-
-    .btn-edit {
-        background: white;
-        color: black;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        font-size: 1.2rem;
-    }
-
-    .admin-card-info h6 {
-        font-size: 0.85rem;
-        color: var(--accent-off-white);
-    }
-
-    .admin-price {
-        font-size: 0.8rem;
-        color: #25d366;
-        font-weight: bold;
-    }
-/* Container da Checkbox dentro da imagem */
+/* Controle de vendido dentro da imagem */
 .admin-sold-control {
     position: absolute;
     top: 8px;
     left: 8px;
     z-index: 20;
-    background: rgba(0, 0, 0, 0.7); /* Fundo escuro para destacar o texto */
+    background: rgba(0, 0, 0, 0.7);
     padding: 4px 8px;
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1271,28 +1171,30 @@ body {
     width: 16px;
     height: 16px;
     cursor: pointer;
-    accent-color: #ff4444; /* Vermelho para indicar "Vendido" */
+    accent-color: #ff4444;
 }
 
-/* Estilo visual quando marcado */
 .admin-book-card:has(.sold-checkbox:checked) .admin-card-img img {
     filter: grayscale(1) opacity(0.4);
 }
-/* Cards do Admin */
+
+/* Card escuro generico */
 .card-dark {
     background: var(--bg-card);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
 }
+
+
 /* ==========================================================================
-   FORMULÁRIO DE ADICIONAR/EDITAR LIVRO (estilo antigo)
+   FORMULARIO DE ADICIONAR/EDITAR LIVRO
    ========================================================================== */
 
-/* Áreas de Upload com Preview */
+/* Areas de upload com preview */
 .upload-area {
     display: block;
     width: 100%;
-    aspect-ratio: 2/3; /* Formato de capa de livro */
+    aspect-ratio: 2/3;
     background: rgba(0, 0, 0, 0.4);
     border: 2px dashed rgba(255, 255, 255, 0.2);
     border-radius: 8px;
@@ -1304,7 +1206,7 @@ body {
 }
 
 #drop-area-video {
-    aspect-ratio: 16/9; /* Formato de vídeo */
+    aspect-ratio: 16/9;
 }
 
 .upload-area:hover {
@@ -1331,10 +1233,10 @@ body {
 .preview-container video {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* Mostra a mídia inteira sem cortar */
+    object-fit: contain;
 }
 
-/* Inputs Personalizados */
+/* Inputs personalizados */
 .form-group {
     position: relative;
     margin-bottom: 1.5rem;
@@ -1363,7 +1265,7 @@ body {
     box-shadow: 0 0 10px rgba(37, 211, 102, 0.2);
 }
 
-/* Contadores de Caracteres */
+/* Contador de caracteres */
 .char-counter {
     position: absolute;
     bottom: -18px;
@@ -1372,7 +1274,7 @@ body {
     color: #888;
 }
 
-/* Checkbox Moderno */
+/* Checkbox do formulario */
 .custom-checkbox-wrapper {
     cursor: pointer;
     display: flex;
@@ -1387,7 +1289,7 @@ body {
     cursor: pointer;
 }
 
-/* Botões */
+/* Botoes do formulario */
 .btn-save {
     background: #25d366;
     color: #000;
@@ -1405,42 +1307,6 @@ body {
     box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
 }
 
-/* Mensagens de erro do Django */
-.text-danger {
-    font-size: 0.8rem;
-    margin-top: 4px;
-}
-/* --- Estilos Específicos para a Tela de Login --- */
-/* Corrigindo o link de voltar que estava ilegível */
-.login-footer-link {
-    color: var(--gray-text) !important;
-    transition: 0.3s;
-    opacity: 0.7;
-}
-
-.login-footer-link:hover {
-    color: var(--accent-category) !important;
-    opacity: 1;
-}
-
-/* Garante que o card de login use a borda da categoria ativa */
-.login-card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--glass-border);
-    border-top: 3px solid var(--accent-category) !important;
-    border-radius: 12px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-}
-
-/* Ajuste para que os erros do formulário fiquem visíveis */
-.login-error-msg {
-    background: rgba(220, 53, 69, 0.1);
-    border: 1px solid rgba(220, 53, 69, 0.2);
-    color: #ff6b6b;
-    border-radius: 6px;
-    font-size: 0.85rem;
-}
-/* botão de trocar video */
 .btn-change-video {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.15);
@@ -1454,13 +1320,20 @@ body {
     margin-top: 12px;
     cursor: pointer;
 }
+
 .btn-change-video:hover {
     background: rgba(255, 255, 255, 0.1);
     border-color: var(--accent-category, #25d366);
     color: #fff;
 }
-/* DELETAR */
-/* Botão de deletar principal */
+
+/* Mensagens de erro do Django */
+.text-danger {
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
+
+/* Botao de deletar */
 .btn-delete-trigger {
     background: transparent;
     color: #ff4444;
@@ -1478,7 +1351,7 @@ body {
     border-color: #ff6666;
 }
 
-/* Modal Customizado para o Dark Mode */
+/* Modal de confirmacao de delete */
 .modal-content-dark {
     background-color: #1a1a1a;
     color: #fff;
@@ -1494,7 +1367,6 @@ body {
     border-top: 1px solid #333;
 }
 
-/* Botão de confirmação dentro do modal */
 .btn-confirm-delete {
     background: #ff4444;
     color: white;
@@ -1506,4 +1378,36 @@ body {
 
 .btn-confirm-delete:hover {
     background: #cc0000;
+}
+
+
+/* ==========================================================================
+   LOGIN
+   ========================================================================== */
+
+.login-footer-link {
+    color: var(--gray-text) !important;
+    transition: 0.3s;
+    opacity: 0.7;
+}
+
+.login-footer-link:hover {
+    color: var(--accent-category) !important;
+    opacity: 1;
+}
+
+.login-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    border-top: 3px solid var(--accent-category) !important;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+.login-error-msg {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    color: #ff6b6b;
+    border-radius: 6px;
+    font-size: 0.85rem;
 }

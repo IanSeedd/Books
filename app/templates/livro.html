@@ -67,7 +67,7 @@
                 <div class="price-tag mb-3">
                     <span class="currency">R$</span> {{ livro.preco }}
                 </div>
-                <a href="https://wa.me/5521985842859?text=Olá,%20gostaria%20de%20pedir%20o%20livro%20{{ livro.titulo|urlencode }}." 
+                <a href="https://wa.me/{{ contato }}?text=Olá,%20gostaria%20de%20pedir%20o%20livro%20{{ livro.titulo|urlencode }}." 
                 target="_blank" 
                 class="btn-checkout text-decoration-none d-flex align-items-center justify-content-center">
                     PEDIR <i class="bi bi-whatsapp ms-2"></i>
@@ -85,7 +85,7 @@
                             <span class="d-block mt-1">Consulte a disponibilidade no WhatsApp.</span>
                         </p>
                         
-                        <a href="https://wa.me/5521985842859?text=Olá,%20gostaria%20de%20saber%20a%20disponibilidade%20do%20livro%20{{ livro.titulo|urlencode }}." 
+                        <a href="https://wa.me/{{ contato }}?text=Olá,%20gostaria%20de%20saber%20a%20disponibilidade%20do%20livro%20{{ livro.titulo|urlencode }}." 
                         target="_blank" 
                         class="btn-secondary-sold mt-3 text-decoration-none d-inline-flex align-items-center justify-content-center">
                             CONSULTAR <i class="bi bi-whatsapp ms-2"></i>

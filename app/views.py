@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from .models import Livro
 from .forms import LivroForm
 from django.views.decorators.csrf import csrf_exempt
@@ -103,6 +104,7 @@ def homeview(request):
     })
 
 def livroview(request, slug):
+    import os
     livro = get_object_or_404(Livro, slug=slug)
 
     cores_categorias = {
@@ -125,13 +127,17 @@ def livroview(request, slug):
     return render(request, 'livro.html', {
         'livro': livro,
         'cor_tema': cor_tema,
-        'car_choices': Livro.STATUS_CHOICES_CARACTERISTICAS
+        'car_choices': Livro.STATUS_CHOICES_CARACTERISTICAS,
+        'contato': os.getenv('NUMERO') # numero de contato para consultar sobre o livro
     })
+
 
 # --- VIEWS DE ADMINISTRAÇÃO ---
 
 @login_required
 def admin_dashboard(request):
+    if not request.session.get('2fa_verificado'):
+        return redirect('view_2fa') # Manda ele pro 2FA se não verificou
     livros = Livro.objects.all().order_by('-id')
     return render(request, 'dashboard/admin_dashboard.html', {'livros': livros})
 
@@ -150,7 +156,7 @@ def add_livro(request):
     
     return render(request, 'dashboard/adicionar_editar.html', {
         'form': form,
-        'is_edit': False
+        'is_edit': False,
     })
 
 @login_required
@@ -199,3 +205,59 @@ def delete_livro(request, id):
         return redirect('dashboard')
     # Se tentarem acessar via GET por erro, apenas volta para o dashboard
     return redirect('dashboard')
+
+# --- VIEWS DE 2FA ---
+from django.core.mail import send_mail
+from django.contrib.auth import logout
+from django.http import Http404
+
+def view_2fa(request):
+    # 1. SEGURANÇA: Caso não haja login forja um 404
+    if not request.user.is_authenticated:
+        raise Http404
+
+    # 2. SEGURANÇA: Se ele já verificou o 2FA nessa sessão, manda pro dashboard
+    if request.session.get('2fa_verificado'):
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        codigo_digitado = request.POST.get('codigo')
+        codigo_real = request.session.get('codigo_2fa')
+
+        if codigo_digitado and codigo_digitado == codigo_real:
+            request.session['2fa_verificado'] = True
+            # Limpa o código da sessão por segurança após usar
+            del request.session['codigo_2fa'] 
+            return redirect('dashboard')
+        else:
+            return render(request, '2fa.html', {'error': 'Código inválido!'})
+
+    # --- LÓGICA DE ENVIO (ANTI-SPAM) ---
+    # Só gera e envia um codigo, se não existir um ativo na sessão (evita o spam do F5)
+    if not request.session.get('codigo_2fa'):
+        codigo_2fa = str(random.randint(100000, 999999))
+        request.session['codigo_2fa'] = codigo_2fa
+        
+        try:
+            send_mail(
+                'Código de Segurança',
+                f'Seu código é: {codigo_2fa}',
+                settings.EMAIL_HOST_USER,
+                [request.user.email],
+                fail_silently=False,
+            )
+        except Exception:
+            return render(request, 'dashboard/2fa.html', {'error': 'Erro ao enviar e-mail. Tente novamente.'})
+
+    return render(request, 'dashboard/2fa.html')
+@login_required
+def reenviar_2fa(request):
+    if not request.user.is_authenticated:
+        raise Http404
+        
+    # Remove o código atual da sessão para forçar a criação de um novo
+    if 'codigo_2fa' in request.session:
+        del request.session['codigo_2fa']
+    
+    # Redireciona de volta para a tela de verificação
+    return redirect('view_2fa')
