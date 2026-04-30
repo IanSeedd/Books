@@ -59,7 +59,8 @@ class Livro(models.Model):
         default=None
     )
     capa = models.ImageField(
-        default='media/defaults/hmarch.webp',
+        # Não funciona porque o django não pega do static kkkkk, mas vou deixar assim por conveniencia já que não vai ter nenhum livro que não tenha capa.
+        default='static/defaults/hmarch.webp', 
         upload_to=caminho_livro,
         # Formatos aceitos:
         validators=[FileExtensionValidator(allowed_extensions=['jpg', 'webp', 'png', 'jpeg'])]
