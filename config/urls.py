@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path, include
 import os
+from django.conf import settings
+from django.conf.urls.static import static
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -27,3 +29,6 @@ urlpatterns = [
     path('', include('app.urls')),
 ]
 handler404 = 'app.views.p404_customizada' # 404 desconfigurado
+# Ambiente para testes
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
